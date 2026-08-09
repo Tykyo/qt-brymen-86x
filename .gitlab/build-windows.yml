@@ -1,0 +1,57 @@
+# .gitlab/build-windows.yml
+build-windows:
+  stage: build
+  
+  before_script:
+    # Install aqt if necessary
+    - |
+      try {
+        python -c "import aqt"
+        Write-Host "aqtinstall is already installed"
+      } catch {
+        Write-Host "aqtinstall not found, installing..."
+        python -m pip install git+https://github.com/miurahr/aqtinstall.git
+      }
+
+    - python -m aqt version
+    
+    # Load the MSVC x64 environment directly into the PowerShell session
+    - |
+      & "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64 -HostArch amd64
+
+    # Check if Qt is installed, if not install it
+    - |
+      $QT_PATH = "$env:QT_INSTALL_ROOT\$env:QT_VERSION"
+      if (-Not (Test-Path $QT_PATH)) {
+        Write-Host "Installing Qt $env:QT_VERSION..."
+        python -m aqt install-qt windows desktop "$env:QT_VERSION" win64_msvc2022_64 --outputdir "$env:QT_INSTALL_ROOT" -m qtserialport qtcharts qtserialbus qtgraphs qtimageformats qtconnectivity qt5compat qtmultimedia qtshadertools qtwebsockets
+      } else {
+        Write-Host "Using cached Qt $env:QT_VERSION"
+      }
+
+    # Add Qt to PATH
+    - $env:QT_ROOT = "$env:QT_INSTALL_ROOT\$env:QT_VERSION\msvc2022_64"
+    - $env:PATH = "$env:QT_ROOT\bin;$env:PATH"
+    - qmake --version
+
+  script:
+    - New-Item -ItemType Directory -Force -Path build
+    - Set-Location build
+    - qmake ..\QtBrymen_86X.pro "CONFIG+=release" "CONFIG-=debug" "QMAKE_CXXFLAGS+=/MP"
+    - nmake
+    - nmake deploy
+    - $BUNDLE_DIR = "bundle\BM86x-windows-x86_64-qt$env:QT_VERSION"
+    - New-Item -ItemType Directory -Force -Path $BUNDLE_DIR
+    - xcopy /E /I /Y install\* "$BUNDLE_DIR\"
+    - Compress-Archive -Path $BUNDLE_DIR -DestinationPath "BM86x-windows-x86_64-qt$env:QT_VERSION.zip"
+
+  artifacts:
+    paths:
+      - build/BM86x-windows-x86_64-qt${QT_VERSION}.zip
+    expire_in: 1 week
+
+  tags:
+    - win_x64
+
+  rules:
+    - when: always

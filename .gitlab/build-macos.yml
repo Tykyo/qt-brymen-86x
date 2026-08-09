@@ -1,0 +1,51 @@
+# .gitlab/build-macos.yml
+build-macos:
+  stage: build
+  
+  before_script:
+    # Install aqt if necessary
+    - |
+      if ! python3 -c "import aqt" 2>/dev/null; then
+        echo "Installing aqtinstall..."
+        python3 -m pip install --user aqtinstall
+      else
+        echo "aqtinstall is already installed"
+      fi
+
+    - python3 -m aqt version 2>/dev/null
+
+    # Check if Qt is installed, if not install it
+    - |
+      if [ ! -d "$QT_INSTALL_ROOT/$QT_VERSION" ]; then
+        echo "Installing Qt $QT_VERSION..."
+        python3 -m aqt install-qt mac desktop "$QT_VERSION" clang_64 \
+          --outputdir "$QT_INSTALL_ROOT" \
+          -m qtserialport qtcharts qtserialbus qtgraphs qtimageformats qtconnectivity \
+          qt5compat qtmultimedia qtshadertools qtwebsockets
+      else
+        echo "Using cached Qt $QT_VERSION"
+      fi
+
+    # Add Qt to PATH
+    - export QT_ROOT="$QT_INSTALL_ROOT/$QT_VERSION/macos"
+    - export PATH="$QT_ROOT/bin:$PATH"
+    - qmake --version
+
+  script:
+    - mkdir build
+    - cd build
+    - qmake ../QtBrymen_86X.pro "CONFIG+=release" "CONFIG-=debug"
+    - make -j$(sysctl -n hw.ncpu)
+    - make deploy
+    - mv install/BM86x.dmg install/BM86x-macos-qt${QT_VERSION}.dmg
+
+  artifacts:
+    paths:
+      - build/install/BM86x-macos-qt${QT_VERSION}.dmg
+    expire_in: 1 week
+
+  tags:
+    - macos
+
+  rules:
+    - when: always

@@ -1,0 +1,57 @@
+# .gitlab/build-linux.yml
+build-linux:
+  stage: build
+  
+  before_script:
+    # Install aqt if necessary
+    - |
+      if ! command -v aqt &> /dev/null; then
+        echo "Installing aqtinstall via pipx..."
+        pipx install git+https://github.com/miurahr/aqtinstall.git
+      else
+        echo "aqtinstall is already installed"
+      fi
+    
+    - export PATH="$HOME/.local/bin:$PATH"
+
+    - aqt version
+    
+    # Check if Qt is installed, if not install it
+    - |
+      if [ ! -d "$QT_INSTALL_ROOT/$QT_VERSION" ]; then
+        echo "Installing Qt $QT_VERSION..."
+        # Utilisation directe de la commande 'aqt' installée par pipx
+        aqt install-qt linux desktop "$QT_VERSION" linux_gcc_64 \
+          --outputdir "$QT_INSTALL_ROOT" \
+          -m qtserialport qtcharts qtserialbus qtgraphs qtimageformats qtconnectivity \
+          qt5compat qtmultimedia qtshadertools qtwebsockets
+      else
+        echo "Using cached Qt $QT_VERSION"
+      fi
+
+    # Add Qt to PATH
+    - export QT_ROOT="$QT_INSTALL_ROOT/$QT_VERSION/gcc_64"
+    - export PATH="$QT_ROOT/bin:$PATH"
+    - qmake --version
+
+  script:
+    - mkdir -p build
+    - cd build
+    - qmake ../QtBrymen_86X.pro "CONFIG+=release" "CONFIG-=debug"
+    - make -j$(nproc)
+    - make deploy
+    - mkdir -p bundle/BM86x-linux-x86_64-qt${QT_VERSION}
+    - rsync -a install/* bundle/BM86x-linux-x86_64-qt${QT_VERSION}/
+    - cd bundle
+    - tar -czf ../BM86x-linux-x86_64-qt${QT_VERSION}.tar.gz BM86x-linux-x86_64-qt${QT_VERSION}
+
+  artifacts:
+    paths:
+      - build/BM86x-linux-x86_64-qt${QT_VERSION}.tar.gz
+    expire_in: 1 week
+
+  tags:
+    - linux_x64
+
+  rules:
+    - when: always

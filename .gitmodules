@@ -1,0 +1,13 @@
+[submodule "3rdparty/qwt"]
+	path = 3rdparty/qwt
+	url = https://github.com/Tykyo/qwt_macos_patched.git
+[submodule "3rdparty/QXlsx"]
+	path = 3rdparty/QXlsx
+	url = https://github.com/QtExcel/QXlsx.git
+[submodule "3rdparty/miniaudio"]
+	path = 3rdparty/miniaudio
+	url = https://github.com/mackron/miniaudio.git
+[submodule "firmware"]
+	path = firmware
+	url = https://github.com/Tykyo/qt-brymen-86x-firmware.git
+	branch = test_dev

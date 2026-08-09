@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="1024"
+   height="1024"
+   viewBox="0 0 270.93333 270.93333"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   sodipodi:docname="main_icon.svg"
+   inkscape:export-filename="main_icon.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.89887065"
+     inkscape:cx="576.83494"
+     inkscape:cy="503.40947"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:#008080;stroke:none;stroke-width:1;stroke-dasharray:4, 1"
+       id="rect1"
+       width="270.93332"
+       height="270.93332"
+       x="0"
+       y="0"
+       ry="40.326065" />
+    <g
+       id="g1"
+       transform="matrix(0.99236124,0,0,1.8886497,1.0347968,-124.58233)">
+      <path
+         id="rect2"
+         style="fill:none;stroke:#ffffff;stroke-width:4.98444;stroke-dasharray:none"
+         d="m 203.21098,94.855051 h 33.54735 c 10.58452,0 19.10561,7.305529 19.10561,16.380119 v 57.91539 c 0,9.07458 -8.52109,16.38011 -19.10561,16.38011 H 34.175004 c -10.584504,0 -19.105603,-7.30553 -19.105603,-16.38011 v -57.91539 c 0,-9.07459 8.521099,-16.380119 19.105603,-16.380119 v 0 l 33.546839,-9e-6" />
+      <path
+         style="fill:none;stroke:#ffffff;stroke-width:4.852;stroke-dasharray:9.704, 9.704;stroke-dashoffset:15.0412"
+         d="M 67.832083,94.86148 H 203.10126"
+         id="path6" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:67.5902px;line-height:3.46919px;font-family:Baskerville;-inkscape-font-specification:'Baskerville, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#ffffff;stroke:#ffffff;stroke-width:1.1564;stroke-dasharray:none"
+       x="161.66187"
+       y="139.52962"
+       id="text10"
+       transform="scale(0.83565994,1.196659)"><tspan
+         sodipodi:role="line"
+         id="tspan10"
+         style="stroke-width:1.1564"
+         x="161.66187"
+         y="139.52962">BM86x</tspan></text>
+    <circle
+       style="fill:#ff0000;stroke:#cccccc;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:15.0412"
+       id="path1"
+       cx="231.06541"
+       cy="81.240837"
+       r="11.774034" />
+  </g>
+</svg>

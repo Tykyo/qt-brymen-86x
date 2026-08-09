@@ -1,0 +1,56 @@
+name: Build Linux
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04 # Stable LTS
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Install Qt
+        id: qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.11.1'
+          host: 'linux'
+          target: 'desktop'
+          cache: true
+
+      - name: Extract installed Qt version
+        run: |
+          QT_VERSION=$(basename "$(dirname "$QT_ROOT_DIR")")
+          echo "QT_VERSION=$QT_VERSION" >> "$GITHUB_ENV"
+          echo "Detected Qt version: $QT_VERSION"
+
+      - name: Build with qmake
+        run: |
+          mkdir build
+          cd build
+          qmake ../QtBrymen_86X.pro "CONFIG+=release" "CONFIG-=debug"
+          make -j$(nproc)
+
+      - name: Deploy Application
+        run: |
+          cd build
+          make -j$(nproc) deploy
+          mkdir -p bundle/BM86x-linux-x86_64-qt${QT_VERSION}
+          rsync -a install/* bundle/BM86x-linux-x86_64-qt${QT_VERSION}/
+
+      - name: Archive Application
+        run: |
+          cd build/bundle
+          tar -czf BM86x-linux-x86_64-qt${QT_VERSION}.tar.gz BM86x-linux-x86_64-qt${QT_VERSION}
+
+      - name: Upload as artefact
+        uses: actions/upload-artifact@v7
+        with:
+          name: BM86x-linux-x86_64-qt${{ env.QT_VERSION }}
+          path: build/bundle/BM86x-linux-x86_64-qt${{ env.QT_VERSION }}.tar.gz

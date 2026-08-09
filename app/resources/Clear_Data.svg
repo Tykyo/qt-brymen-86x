@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="120"
+   height="100"
+   viewBox="0 0 120 100"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   sodipodi:docname="Clear_Data.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="7.1909652"
+     inkscape:cx="57.294117"
+     inkscape:cy="58.754282"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g2"
+       transform="translate(0,-2.5583143)">
+      <rect
+         style="fill:#000000;stroke:#000000;stroke-width:8"
+         id="rect1"
+         width="99.430321"
+         height="7.78755"
+         x="10.28484"
+         y="14.879783" />
+      <rect
+         style="fill:none;stroke:#000000;stroke-width:8.24735"
+         id="rect2"
+         width="99.399734"
+         height="75.357063"
+         x="10.300133"
+         y="14.879783" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:8"
+         d="M 26.282981,41.997144 H 92.616218"
+         id="path2" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:8"
+         d="M 26.282981,56.576528 H 92.616218"
+         id="path2-0" />
+      <path
+         style="fill:none;stroke:#000000;stroke-width:8"
+         d="M 26.282981,71.155912 H 92.616218"
+         id="path2-3" />
+    </g>
+    <path
+       style="fill:none;stroke:#ff0000;stroke-width:7.43429;stroke-linecap:round;stroke-linejoin:round"
+       d="M 0.66403246,95.989297 112.93619,3.717145"
+       id="path3" />
+  </g>
+</svg>

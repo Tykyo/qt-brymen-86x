@@ -1,0 +1,34 @@
+# ==============================================================================
+# Qt Linux plugins required by BM86x
+# Generated from QT_DEBUG_PLUGINS output
+#
+# QT_DEBUG_PLUGINS=1 ./BM86x > log.txt 2>&1
+# grep "QT_INSTALL_PLUGINS" log.txt | grep "Found" | awk '{print $6}' | sed 's$QT_INSTALL_PLUGINS/$$g' | sed 's/,$//g'
+#
+# replace QT_INSTALL_PLUGINS with the good path, and try using all functionality of the app (save, print, etc.)
+# ==============================================================================
+
+platforms/libqminimal.so
+platforms/libqwayland.so
+platforms/libqxcb.so
+platforms/libqlinuxfb.so
+platforms/libqminimalegl.so
+platforms/libqoffscreen.so
+platforms/libqvnc.so
+platforms/libqeglfs.so
+platforms/libqvkkhrdisplay.so
+platformthemes/libqgtk3.so
+platformthemes/libqxdgdesktopportal.so
+platforminputcontexts/libibusplatforminputcontextplugin.so
+platforminputcontexts/libcomposeplatforminputcontextplugin.so
+iconengines/libqsvgicon.so
+imageformats/libqwebp.so
+imageformats/libqtga.so
+imageformats/libqwbmp.so
+imageformats/libqgif.so
+imageformats/libqjpeg.so
+imageformats/libqicns.so
+imageformats/libqsvg.so
+imageformats/libqtiff.so
+imageformats/libqico.so
+printsupport/libcupsprintersupport.so

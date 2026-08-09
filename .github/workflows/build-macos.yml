@@ -1,0 +1,51 @@
+name: Build macOS
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Install Qt
+        id: qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.11.1'
+          host: 'mac'
+          target: 'desktop'
+          arch: 'clang_64'
+          cache: true
+
+      - name: Extract installed Qt version
+        run: |
+          QT_VERSION=$(basename "$(dirname "$QT_ROOT_DIR")")
+          echo "QT_VERSION=$QT_VERSION" >> "$GITHUB_ENV"
+          echo "Detected Qt version: $QT_VERSION"
+
+      - name: Build with qmake
+        run: |
+          mkdir build
+          cd build
+          qmake ../QtBrymen_86X.pro "CONFIG+=release" "CONFIG-=debug"
+          make -j$(sysctl -n hw.ncpu)
+
+      - name: Deploy DMG
+        run: |
+          cd build
+          make -j$(sysctl -n hw.ncpu) deploy
+          mv install/BM86x.dmg install/BM86x-macos-qt${QT_VERSION}.dmg
+
+      - name: Upload as artefact
+        uses: actions/upload-artifact@v7
+        with:
+          name: BM86x-macos-qt${{ env.QT_VERSION }}
+          path: build/install/BM86x-macos-qt${{ env.QT_VERSION }}.dmg
