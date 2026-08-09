@@ -9,6 +9,10 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+
+    env:
+      QT_VERSION: '6.11.1'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
@@ -29,28 +33,29 @@ jobs:
       - name: Install Qt
         shell: pwsh
         run: |
-          $QT_PATH = "$env:GITHUB_WORKSPACE\Qt\6.11.1"
-          
+          $QT_PATH = "$env:GITHUB_WORKSPACE\Qt\$env:QT_VERSION"
+
           if (-Not (Test-Path $QT_PATH)) {
-            Write-Host "Installing Qt 6.11.1..."
-            python -m aqt install-qt windows desktop 6.11.1 win64_msvc2022_64 `
+            Write-Host "Installing Qt $env:QT_VERSION..."
+            python -m aqt install-qt windows desktop "$env:QT_VERSION" win64_msvc2022_64 `
               --outputdir "$env:GITHUB_WORKSPACE\Qt" `
-              -m qtserialport qt5compat
+              -m qtserialport qtcharts qtserialbus qtgraphs qtimageformats qtconnectivity qt5compat qtmultimedia qtshadertools qtwebsockets
           } else {
-            Write-Host "Using cached Qt 6.11.1"
+            Write-Host "Using cached Qt $env:QT_VERSION"
           }
+
+      - name: Setup Qt environment
+        shell: pwsh
+        run: |
+          $QT_ROOT = "$env:GITHUB_WORKSPACE\Qt\$env:QT_VERSION\msvc2022_64"
+          echo "QT_ROOT=$QT_ROOT" >> $env:GITHUB_ENV
+          echo "$QT_ROOT\bin" >> $env:GITHUB_PATH
+          qmake --version
 
       - name: Setup MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
         with:
           arch: x64
-
-      - name: Extract installed Qt version
-        shell: pwsh
-        run: |
-          $QT_VERSION = Split-Path (Split-Path $env:QT_ROOT_DIR -Parent) -Leaf
-          echo "QT_VERSION=$QT_VERSION" >> $env:GITHUB_ENV
-          Write-Output "Detected Qt version: $QT_VERSION"
 
       - name: Build with qmake
         shell: pwsh
@@ -65,7 +70,7 @@ jobs:
         run: |
           Set-Location build
           nmake deploy
-          $BUNDLE_DIR = "bundle\BM86x-windows-x86_64-qt%QT_VERSION%"
+          $BUNDLE_DIR = "bundle\BM86x-windows-x86_64-qt$env:QT_VERSION"
           New-Item -ItemType Directory -Force -Path $BUNDLE_DIR
           xcopy /E /I /Y install\* $BUNDLE_DIR\
 

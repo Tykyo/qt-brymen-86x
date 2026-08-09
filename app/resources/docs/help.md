@@ -112,7 +112,7 @@ Zoom in or out along **both X and Y axes**.
 Scroll horizontally through the X axis to browse previous or later data.
 
 ---
-Application version: 1.0.0
+Application version: 1.0.2
 Documentation version: 1.0
 ---
 Copyright (c) 2026 Olivier Verlaine  
