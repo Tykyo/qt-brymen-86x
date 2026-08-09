@@ -22,6 +22,7 @@ jobs:
           version: '6.11.1'
           host: 'linux'
           target: 'desktop'
+          modules: 'qtserialport qt5compat'
           cache: true
 
       - name: Extract installed Qt version

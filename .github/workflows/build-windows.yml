@@ -15,15 +15,30 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install Qt
-        id: qt
-        uses: jurplel/install-qt-action@v4
+      - name: Setup Python
+        uses: actions/setup-python@v6
         with:
-          version: '6.11.1'
-          host: 'windows'
-          target: 'desktop'
-          arch: 'win64_msvc2022_64'
-          cache: true
+          python-version: '3.12'
+
+      - name: Install aqtinstall
+        shell: pwsh
+        run: |
+          python -m pip install git+https://github.com/miurahr/aqtinstall.git
+          python -m aqt version
+
+      - name: Install Qt
+        shell: pwsh
+        run: |
+          $QT_PATH = "$env:GITHUB_WORKSPACE\Qt\6.11.1"
+          
+          if (-Not (Test-Path $QT_PATH)) {
+            Write-Host "Installing Qt 6.11.1..."
+            python -m aqt install-qt windows desktop 6.11.1 win64_msvc2022_64 `
+              --outputdir "$env:GITHUB_WORKSPACE\Qt" `
+              -m qtserialport qt5compat
+          } else {
+            Write-Host "Using cached Qt 6.11.1"
+          }
 
       - name: Setup MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1

@@ -23,6 +23,7 @@ jobs:
           host: 'mac'
           target: 'desktop'
           arch: 'clang_64'
+          modules: 'qtserialport qt5compat'
           cache: true
 
       - name: Extract installed Qt version
