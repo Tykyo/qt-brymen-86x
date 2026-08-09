@@ -39,7 +39,7 @@ jobs:
             Write-Host "Installing Qt $env:QT_VERSION..."
             python -m aqt install-qt windows desktop "$env:QT_VERSION" win64_msvc2022_64 `
               --outputdir "$env:GITHUB_WORKSPACE\Qt" `
-              -m qtserialport qtcharts qtserialbus qtgraphs qtimageformats qtconnectivity qt5compat qtmultimedia qtshadertools qtwebsockets
+              -m qtserialport qt5compat
           } else {
             Write-Host "Using cached Qt $env:QT_VERSION"
           }
