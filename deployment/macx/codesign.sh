@@ -1,15 +1,15 @@
 #!/bin/bash
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
 APP="$1"
 SKIP_BUNDLE_CONTENTS="$2"
 ENTITLEMENTS="$3"
 
 # Arguments codesign supplémentaires passés individuellement après un séparateur --
-shift 4 2>/dev/null || true
+shift 3 2>/dev/null || true
 EXTRA_ARGS=("$@")
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 if [ -z "$ENTITLEMENTS" ]; then
     ENTITLEMENTS="$SCRIPT_DIR/USB.entitlements"

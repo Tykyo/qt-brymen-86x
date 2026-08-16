@@ -134,6 +134,17 @@ qmake ..
 make
 ```
 
+### Windows / MSVC build note
+When building the project on Windows with MSVC, the build may occasionally fail while compiling the Qwt library.
+By default, Qt Creator uses `jom` to run several compilation jobs in parallel. Windows Defender may temporarily lock a file while scanning it, causing `jom` to report a build error.
+A workaround is to use `nmake` instead of `jom` and let MSVC handle parallel compilation itself by passing the following option to qmake:
+```text
+QMAKE_CXXFLAGS+=/MP
+```
+In Qt Creator, configure the project to use nmake as the make tool and add QMAKE_CXXFLAGS+=/MP to the qmake configuration.
+
+This keeps the compilation parallel while avoiding the file-locking issue that can sometimes occur with jom.
+
 ## Installation
 
 The project provides a custom **`deploy`** target. This target creates an **`install`** folder within the build directory containing the application and all required libraries.

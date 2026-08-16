@@ -124,7 +124,7 @@ private Q_SLOTS:
     void onScrollLock (void);
 
 Q_SIGNALS:
-    void showStatusCanged (const bool &value);
+    void showStatusChanged (const bool &value);
     void recordDataChanged (const bool &value);
     void filterDataChanged (const filterData_s &value);
 

@@ -223,7 +223,7 @@ BM86Xgui::BM86Xgui(QWidget *parent)
     QObject::connect(ui->actionHelp, &QAction::triggered, this, &BM86Xgui::onShowHelp);
     QObject::connect(ui->actionClear, &QAction::triggered, mStorageWindow, &DataStorage::onClearData);
     QObject::connect(ui->actionPrint_Data, &QAction::triggered, mStorageWindow, &DataStorage::onPrintData);
-    QObject::connect(mStorageWindow, &DataStorage::showStatusCanged, ui->actionReview, &QAction::setChecked);
+    QObject::connect(mStorageWindow, &DataStorage::showStatusChanged, ui->actionReview, &QAction::setChecked);
     QObject::connect(mStorageWindow, &DataStorage::filterDataChanged, ui->qtPlot, &BM86xQwtPlot::onFilterDataChanged);
     QObject::connect(ui->pB_ShowData, &QPushButton::clicked, this, [=, this]() {
         mStorageWindow->onShowWindow(!mStorageWindow->isVisible());

@@ -902,8 +902,6 @@ void DataStorage::onAppendData(const BM86xDataType_s &data)
     bool catched = false;
     const int mainCol = mTableHeader.indexOf("Main Value");
     const int auxCol  = mTableHeader.indexOf("Aux Value");
-    // double main_value = mTableWidget->item(row, mainCol)->text().toDouble();
-    // double aux_value = mTableWidget->item(row, auxCol)->text().toDouble();
     double main_value = (double)data.value.m_value;
     double aux_value = (double)data.value.a_value;
     bool aux_isNotEmpty = mTableWidget->item(row, auxCol)->text() == "" ? false : true;
@@ -1304,14 +1302,14 @@ QPixmap DataStorage::setColoredSvg(const QString &svgPath, const QColor &color, 
 
 void DataStorage::closeEvent(QCloseEvent *event)
 {
-    Q_EMIT showStatusCanged(false);
+    Q_EMIT showStatusChanged(false);
     mWindowGeometry = this->saveGeometry();
 
     QMainWindow::closeEvent(event);
 }
 
 void DataStorage::hideEvent(QHideEvent *event) {
-    Q_EMIT(showStatusCanged(false));
+    Q_EMIT(showStatusChanged(false));
     mWindowGeometry = this->saveGeometry();
 
     QMainWindow::hideEvent(event);
@@ -1375,7 +1373,7 @@ void DataStorage::showEvent(QShowEvent *event) {
         mWindowGeometry = this->saveGeometry();
     }
 
-    Q_EMIT(showStatusCanged(true));
+    Q_EMIT(showStatusChanged(true));
     this->restoreGeometry(mWindowGeometry);
     QMainWindow::showEvent(event);
 }

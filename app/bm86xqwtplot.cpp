@@ -831,6 +831,8 @@ void BM86xQwtPlot::restoreColor() {
 }
 
 #include <algorithm> // For std::lower_bound
+// Returns the smallest index for which list[index].x() >= val.
+// The list must be sorted by x() in ascending order.
 qint64 BM86xQwtPlot::findMinIndex(const QList<QPointF> &list, qint64 val)
 {
     if (list.isEmpty()) return -1;
@@ -850,12 +852,26 @@ qint64 BM86xQwtPlot::findMinIndex(const QList<QPointF> &list, qint64 val)
 
 // qint64 BM86xQwtPlot::findMinIndex(const QList<QPointF> &list, qint64 val)
 // {
-//     for (qint64 i = 0; i < list.size(); ++i) {
-//         if (list.at(i).x() > val) {
-//             return i;
-//         }
+//     const qsizetype size = list.size();
+
+//     if (size == 0)
+//         return -1;
+
+//     const QPointF *data = list.constData();
+
+//     qsizetype first = 0;
+//     qsizetype last = size;
+
+//     while (first < last) {
+//         const qsizetype middle = first + (last - first) / 2;
+
+//         if (data[middle].x() < val)
+//             first = middle + 1;
+//         else
+//             last = middle;
 //     }
-//     return -1;
+
+//     return first < size ? first : -1;
 // }
 
 /* ==============================================================================
