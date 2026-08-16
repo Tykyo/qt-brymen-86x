@@ -85,7 +85,7 @@ done
 ln -s "/Applications" "${INSTALL_DIR}/Applications"
 
 # Sign the app file
-"${SCRIPT_DIR}/codesign.sh" "${INSTALL_DIR}/${TARGET}.app" "0" "${ENTITLEMENTS}" "--options runtime"
+"${SCRIPT_DIR}/codesign.sh" "${INSTALL_DIR}/${TARGET}.app" "0" "${ENTITLEMENTS}" --options runtime
 
 # Generate a .dmg file
 OUT_DMG="${INSTALL_DIR}/../${TARGET}.dmg"
