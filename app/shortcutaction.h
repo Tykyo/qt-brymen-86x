@@ -15,7 +15,6 @@
 #include <QString>
 #include <QColor>
 
-#pragma once
 namespace Shortcut
 {
     struct Action

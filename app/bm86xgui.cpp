@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-#include "bm86xgui.h"
+
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QFont>
@@ -19,11 +19,12 @@
 #include <QStandardPaths>
 #include <QSvgGenerator>
 #include <QSvgRenderer>
+#include <cmath>
+#include "bm86xgui.h"
 #include "bm86xcommon.h"
 #include "dialogconnect.h"
-#include "helpwindow.h"
 #include "ui_bm86xgui.h"
-#include <cmath>
+#include "helpwindow.h"
 
 #if !defined(SERIAL_CONNECT_DELAY)
 #ifdef Q_OS_WIN
@@ -475,7 +476,8 @@ BM86Xgui::~BM86Xgui()
     delete ui;
 }
 
-void BM86Xgui::readSettings() {
+void BM86Xgui::readSettings()
+{
     if (!mSettings) return;
 
     // Helper lambda to safely read a string value with a default fallback
@@ -515,15 +517,16 @@ void BM86Xgui::readSettings() {
     config.filter.mainActive = QString( readValue( mSettings, "Filter/mainActive",  "0"   ) ).toInt();
     config.filter.auxActive  = QString( readValue( mSettings, "Filter/auxActive",   "0"   ) ).toInt();
     config.filter.inverted   = QString( readValue( mSettings, "Filter/inverted",    "0"   ) ).toInt();
-    config.filter.main.max   = QString( readValue( mSettings, "Filter/mainMax",     "500" ) ).toInt();
-    config.filter.main.min   = QString( readValue( mSettings, "Filter/mainMin",     "0"   ) ).toInt();
-    config.filter.aux.max    = QString( readValue( mSettings, "Filter/auxMax",      "500" ) ).toInt();
-    config.filter.aux.min    = QString( readValue( mSettings, "Filter/auxMin",      "0"   ) ).toInt();
+    config.filter.main.max   = QString( readValue( mSettings, "Filter/mainMax",     "500" ) ).toDouble();
+    config.filter.main.min   = QString( readValue( mSettings, "Filter/mainMin",     "0"   ) ).toDouble();
+    config.filter.aux.max    = QString( readValue( mSettings, "Filter/auxMax",      "500" ) ).toDouble();
+    config.filter.aux.min    = QString( readValue( mSettings, "Filter/auxMin",      "0"   ) ).toDouble();
 
     mStorageWindow->setConfig(config);
 }
 
-void BM86Xgui::saveSettings() {
+void BM86Xgui::saveSettings()
+{
     if (!mSettings || !mSettings->isWritable()) {
         qCritical() << "Cannot save settings: QSettings is not initialized or not writable.";
         return;
@@ -575,7 +578,8 @@ void BM86Xgui::saveSettings() {
     mSettings->sync();
 }
 
-QPixmap BM86Xgui::combinePixmap(const QList<QPixmap> &pixmapList, const QSize &size) {
+QPixmap BM86Xgui::combinePixmap(const QList<QPixmap> &pixmapList, const QSize &size)
+{
     if (pixmapList.isEmpty()) {
         return QPixmap(size);
     }
@@ -600,7 +604,8 @@ QPixmap BM86Xgui::combinePixmap(const QList<QPixmap> &pixmapList, const QSize &s
     return QPixmap::fromImage(image);
 }
 
-void BM86Xgui::displayLCD(const BM86xDataType_s &data) {
+void BM86Xgui::displayLCD(const BM86xDataType_s &data)
+{
 
     if (mTestLCDTimer.isActive()) {
         return;
@@ -633,7 +638,8 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data) {
         ui->lcdValue_main->clear();
     }
     else {
-        ui->lcdValue_main->setPixmap(combinePixmap(list, mIconListDigitMain[BM86x::digit_main_ALL].size()));
+        ui->lcdValue_main->setPixmap( combinePixmap(list,
+                                                   mIconListDigitMain[BM86x::digit_main_ALL].size()) );
         list.clear();
     }
 
@@ -657,7 +663,8 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data) {
         ui->lcdValue_aux->clear();
     }
     else {
-        ui->lcdValue_aux->setPixmap(combinePixmap(list, mIconListDigitAux[BM86x::digit_aux_ALL].size()));
+        ui->lcdValue_aux->setPixmap( combinePixmap(list,
+                                                  mIconListDigitAux[BM86x::digit_aux_ALL].size()) );
         list.clear();
     }
 
@@ -674,7 +681,8 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data) {
         list.append(mIconListSymMain[BM86x::sym_main_Peak_Max]);
         list.append(mIconListSymMain[BM86x::sym_main_Peak_Min]);
         list.append(mIconListSymMain[BM86x::sym_main_Peak_Avg]);
-        ui->label_Peak->setPixmap(combinePixmap(list, mIconListSymMain[BM86x::sym_main_Peak_Max].size()));
+        ui->label_Peak->setPixmap( combinePixmap(list,
+                                                mIconListSymMain[BM86x::sym_main_Peak_Max].size()) );
         list.clear();
     }
     else if (data.value.peakMode == Max) {
@@ -728,27 +736,20 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data) {
     if (data.value.visible_bar == true)
     {
         ui->progressBar->setHidden(false);
-        float bar_value = 0.0f;
-        if (data.value.barScale == Scale_1) {
-            bar_value = data.value.m_value * 10;
-        } else if (data.value.barScale == Scale_2) {
-            bar_value = data.value.m_value * 1;
-        } else if (data.value.barScale == Scale_3) {
-            bar_value = data.value.m_value / 10;
-        } else if (data.value.barScale == Scale_4) {
-            bar_value = data.value.m_value / 100;
+        int bar_value = data.count / 1250;
+
+        // Check if 500,000 count, we check if digit 6 display something
+        if (data.value.rawData[7] >> 1 != 0) {
+            bar_value /= 10;
         }
 
-        bar_value = (std::abs(bar_value) / 50.0f * (float)ui->progressBar->maximum());
-        if (bar_value > ui->progressBar->maximum())
+        if (bar_value >= ui->progressBar->maximum())
             bar_value = ui->progressBar->maximum();
 
         if (data.value.m_overflow == true) {
             bar_value = ui->progressBar->maximum(); // 50 max
         }
 
-        if (bar_value < 1.0)
-            bar_value = 1.0;
         ui->progressBar->setValue(bar_value);
         if (data.value.isNegative == true ) {
             ui->label_Bar_sign->setPixmap(mIconListSymMain[BM86x::sym_main_bar_minus]);
@@ -800,7 +801,8 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data) {
         ui->label_Mode_main->clear();
     }
     else {
-        ui->label_Mode_main->setPixmap(combinePixmap(list, mIconListSymMain[BM86x::sym_main_ALL].size()));
+        ui->label_Mode_main->setPixmap( combinePixmap(list,
+                                                     mIconListSymMain[BM86x::sym_main_ALL].size()) );
         list.clear();
     }
 
@@ -862,7 +864,8 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data) {
         ui->label_Unit_main->clear();
     }
     else {
-        ui->label_Unit_main->setPixmap(combinePixmap(list, mIconListUnitMain[BM86x::unit_main_ALL].size()));
+        ui->label_Unit_main->setPixmap( combinePixmap(list,
+                                                     mIconListUnitMain[BM86x::unit_main_ALL].size()) );
         list.clear();
     }
 
@@ -888,7 +891,8 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data) {
         ui->label_Mode_aux->clear();
     }
     else {
-        ui->label_Mode_aux->setPixmap(combinePixmap(list, mIconListSymAux[BM86x::sym_aux_ALL].size()));
+        ui->label_Mode_aux->setPixmap( combinePixmap(list,
+                                                    mIconListSymAux[BM86x::sym_aux_ALL].size()) );
         list.clear();
     }
 
@@ -930,12 +934,14 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data) {
         ui->label_Unit_aux->clear();
     }
     else {
-        ui->label_Unit_aux->setPixmap(combinePixmap(list, mIconListUnitAux[BM86x::unit_aux_ALL].size()));
+        ui->label_Unit_aux->setPixmap( combinePixmap(list,
+                                                    mIconListUnitAux[BM86x::unit_aux_ALL].size()) );
         list.clear();
     }
 }
 
-QString BM86Xgui::getAppConfigPath() {
+QString BM86Xgui::getAppConfigPath()
+{
     // Use Qt's standard path service to get the correct location for the OS
     QString path = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 
@@ -1173,7 +1179,8 @@ void BM86Xgui::initLCD() {
 
     mDmmData = {
         .time  = QDateTime::currentDateTime(),
-        .value = mDmmValue
+        .value = mDmmValue,
+        .count = 0
     };
 
     Q_EMIT(colorChanged(DataStorage::filterColor_s({mColorMain, mColorAux})));
@@ -1195,23 +1202,6 @@ void BM86Xgui::print()
     }
 }
 
-void BM86Xgui::renderPlot(QPaintDevice *device)
-{
-    QRectF documentRect = QRectF(
-    0,
-    0,
-    device->width(),
-    device->height()
-    ).adjusted(
-        PlotRenderMargin,
-        PlotRenderMargin,
-        -PlotRenderMargin,
-        -PlotRenderMargin
-    );
-
-    renderPlot(device, documentRect);
-}
-
 void BM86Xgui::renderPlot(QPaintDevice *device, const QRectF &documentRect)
 {
     QwtPlotRenderer renderer;
@@ -1229,6 +1219,23 @@ void BM86Xgui::renderPlot(QPaintDevice *device, const QRectF &documentRect)
 
     if (blackAndWhite)
         ui->qtPlot->restoreColor();
+}
+
+void BM86Xgui::renderPlot(QPaintDevice *device)
+{
+    QRectF documentRect = QRectF(
+    0,
+    0,
+    device->width(),
+    device->height()
+    ).adjusted(
+        PlotRenderMargin,
+        PlotRenderMargin,
+        -PlotRenderMargin,
+        -PlotRenderMargin
+    );
+
+    renderPlot(device, documentRect);
 }
 
 void BM86Xgui::savePDF(const QString &file)
@@ -1332,7 +1339,8 @@ QPixmap BM86Xgui::setColoredSvg(const QString &svgPath,
     return QPixmap::fromImage(image);
 }
 
-void BM86Xgui::setColorAux(const QColor &color) {
+void BM86Xgui::setColorAux(const QColor &color)
+{
     if (color.isValid()) {
         mColorAux = color;
 
@@ -1390,20 +1398,16 @@ void BM86Xgui::setColorAux(const QColor &color) {
     }
 }
 
-void BM86Xgui::setColorMain(const QColor &color) {
+void BM86Xgui::setColorMain(const QColor &color)
+{
     if (color.isValid()) {
         mColorMain = color;
 
         int r, g, b;
         mColorMain.getRgb(&r, &g, &b);
-        QString styleSheet = QString(
-                                 "QLabel {"
-                                 "    color: rgb(%1, %2, %3);"
-                                 "}"
-                                 ).arg(r).arg(g).arg(b);
         ui->progressBar->setColor(mColorMain);
 
-        styleSheet =
+        QString styleSheet =
             QString(
                 "QCheckBox {"
                 "    color: rgb(%1, %2, %3);"
@@ -1454,7 +1458,8 @@ void BM86Xgui::setColorMain(const QColor &color) {
     }
 }
 
-void BM86Xgui::setColorMousePos(const QColor &color) {
+void BM86Xgui::setColorMousePos(const QColor &color)
+{
     if (color.isValid()) {
         mColorMousePos = color;
 
@@ -1464,14 +1469,16 @@ void BM86Xgui::setColorMousePos(const QColor &color) {
     }
 }
 
-void BM86Xgui::setColorXAxis(const QColor &color) {
+void BM86Xgui::setColorXAxis(const QColor &color)
+{
     if (color.isValid()) {
         mColorXAxis = color;
         ui->qtPlot->setColorXAxis(color);
     }
 }
 
-void BM86Xgui::testLCD(const int &time) {
+void BM86Xgui::testLCD(const int &time)
+{
     QList<QPixmap> list;
 
     // Display test
@@ -1547,15 +1554,18 @@ bool BM86Xgui::waitForHostReachable(const QString &ip)
     return false;
 }
 
-void BM86Xgui::onCbAuxChecked(bool val) {
+void BM86Xgui::onCbAuxChecked(bool val)
+{
     ui->qtPlot->onSetAuxVisible(val);
 }
 
-void BM86Xgui::onCbMainChecked(bool val) {
+void BM86Xgui::onCbMainChecked(bool val)
+{
     ui->qtPlot->onSetMainVisible(val);
 }
 
-void BM86Xgui::onChangePlotScale(const int &scale) {
+void BM86Xgui::onChangePlotScale(const int &scale)
+{
     ui->qtPlot->setPlotScale(scale);
 
     if (scale == BM86xPlot::ScaleFull) {
@@ -1659,7 +1669,8 @@ void BM86Xgui::onChangePlotScale(const int &scale) {
     }
 }
 
-void BM86Xgui::onChangePlotStyle(const int &type) {
+void BM86Xgui::onChangePlotStyle(const int &type)
+{
     ui->qtPlot->setPlotType(type);
     ui->cBplot->setCurrentIndex(type);
 
@@ -1680,7 +1691,8 @@ void BM86Xgui::onChangePlotStyle(const int &type) {
     }
 }
 
-void BM86Xgui::onChangeReadSpeed(const int &index) {
+void BM86Xgui::onChangeReadSpeed(const int &index)
+{
     if (mDeviceConnected == false) {
         return;
     }
@@ -1704,23 +1716,31 @@ void BM86Xgui::onChangeReadSpeed(const int &index) {
     mTimoutTimer.start();
 }
 
-void BM86Xgui::onChooseColorAux() {
-    QColor color = QColorDialog::getColor(mColorAux, this, "Pick AUX color", QColorDialog::ShowAlphaChannel);
+void BM86Xgui::onChooseColorAux()
+{
+    QColor color = QColorDialog::getColor(mColorAux, this, "Pick AUX color",
+                                          QColorDialog::ShowAlphaChannel);
     setColorAux(color);
 }
 
-void BM86Xgui::onChooseColorMain() {
-    QColor color = QColorDialog::getColor(mColorMain, this, "Pick MAIN color", QColorDialog::ShowAlphaChannel);
+void BM86Xgui::onChooseColorMain()
+{
+    QColor color = QColorDialog::getColor(mColorMain, this, "Pick MAIN color",
+                                          QColorDialog::ShowAlphaChannel);
     setColorMain(color);
 }
 
-void BM86Xgui::onChooseColorMousePos() {
-    QColor color = QColorDialog::getColor(mColorMousePos, this, "Pick AUX color", QColorDialog::ShowAlphaChannel);
+void BM86Xgui::onChooseColorMousePos()
+{
+    QColor color = QColorDialog::getColor(mColorMousePos, this, "Pick Mouse color",
+                                          QColorDialog::ShowAlphaChannel);
     setColorMousePos(color);
 }
 
-void BM86Xgui::onChooseColorXAxis() {
-    QColor color = QColorDialog::getColor(mColorAux, this, "Pick AUX color", QColorDialog::ShowAlphaChannel);
+void BM86Xgui::onChooseColorXAxis()
+{
+    QColor color = QColorDialog::getColor(mColorXAxis, this, "Pick X Axis color",
+                                          QColorDialog::ShowAlphaChannel);
     setColorXAxis(color);
 }
 
@@ -1790,7 +1810,8 @@ void BM86Xgui::onConnectMultimeter(bool val)
                     mSerialConnectTimer.start();
             }
             else {
-                QObject::connect(&mTcpSocket, &QTcpSocket::readyRead, this, &BM86Xgui::onReadSerialPort);
+                QObject::connect(&mTcpSocket, &QTcpSocket::readyRead,
+                                 this, &BM86Xgui::onReadSerialPort);
                 QByteArray pData = "wb";
                 mTcpSocket.write(pData);
                 mTcpSocket.waitForBytesWritten(200);
@@ -1803,7 +1824,8 @@ void BM86Xgui::onConnectMultimeter(bool val)
     }
 }
 
-void BM86Xgui::onConnectMultimeterSerial() {
+void BM86Xgui::onConnectMultimeterSerial()
+{
     QObject::connect(&mSerialPort, &QSerialPort::readyRead, this, &BM86Xgui::onReadSerialPort);
     QObject::connect(&mSerialPort, &QSerialPort::errorOccurred, this, &BM86Xgui::onSerialPortError);
     QByteArray pData = "wb";
@@ -1815,14 +1837,17 @@ void BM86Xgui::onConnectMultimeterSerial() {
     mTimoutTimer.start();
 }
 
-void BM86Xgui::onDisconnectMultimeter(bool val) {
+void BM86Xgui::onDisconnectMultimeter(bool val)
+{
     Q_UNUSED(val);
     if (mDeviceConnected == true) {
         QByteArray pData = "q";
 
         if (mUseTcpSocket) {
-            QObject::disconnect(&mTcpSocket, &QTcpSocket::disconnected, this, &BM86Xgui::onTcpDisconnect);
-            QObject::disconnect(&mTcpSocket, &QTcpSocket::readyRead, this, &BM86Xgui::onReadSerialPort);
+            QObject::disconnect(&mTcpSocket, &QTcpSocket::disconnected,
+                                this, &BM86Xgui::onTcpDisconnect);
+            QObject::disconnect(&mTcpSocket, &QTcpSocket::readyRead,
+                                this, &BM86Xgui::onReadSerialPort);
             mTcpSocket.write(pData);
             mTcpSocket.waitForBytesWritten(200);
             if (mTcpSocket.isOpen()) mTcpSocket.disconnectFromHost();
@@ -1832,8 +1857,10 @@ void BM86Xgui::onDisconnectMultimeter(bool val) {
             mSerialPort.write(pData);
             mSerialPort.waitForBytesWritten(200);
             mSerialPort.close();
-            QObject::disconnect(&mSerialPort, &QSerialPort::readyRead, this, &BM86Xgui::onReadSerialPort);
-            QObject::disconnect(&mSerialPort, &QSerialPort::errorOccurred, this, &BM86Xgui::onSerialPortError);
+            QObject::disconnect(&mSerialPort, &QSerialPort::readyRead,
+                                this, &BM86Xgui::onReadSerialPort);
+            QObject::disconnect(&mSerialPort, &QSerialPort::errorOccurred,
+                                this, &BM86Xgui::onSerialPortError);
         }
 
         mDeviceConnected = false;
@@ -1843,7 +1870,8 @@ void BM86Xgui::onDisconnectMultimeter(bool val) {
     }
 }
 
-void BM86Xgui::onDataReceived(const BM86xDataType_s &data) {
+void BM86Xgui::onDataReceived(const BM86xDataType_s &data)
+{
     mTimoutTimer.start();
     if (mUseTcpSocket) {
         statusBar()->showMessage(QString("Connected TCP : %1 (%2)").arg(mTcpHostIP, mTcpHostName));
@@ -1854,14 +1882,17 @@ void BM86Xgui::onDataReceived(const BM86xDataType_s &data) {
     displayLCD(data);
 }
 
-void BM86Xgui::onPausePlot() {
+void BM86Xgui::onPausePlot()
+{
     mPausePlot = !mPausePlot;
     ui->qtPlot->onSetPause(mPausePlot);
     if (mPausePlot) {
-        ui->pB_Pause->setIcon(setColoredSvg(":/image/Play", QColor(135, 222, 135), ui->pB_Pause->iconSize()));
+        ui->pB_Pause->setIcon( setColoredSvg(":/image/Play",
+                                            QColor(135, 222, 135), ui->pB_Pause->iconSize()));
     }
     else {
-        ui->pB_Pause->setIcon(setColoredSvg(":/image/Pause", QColor(255, 127, 42), ui->pB_Pause->iconSize()));
+        ui->pB_Pause->setIcon( setColoredSvg(":/image/Pause",
+                                            QColor(255, 127, 42), ui->pB_Pause->iconSize()));
         if (!mDeviceConnected) {
             ui->qtPlot->setPlotScale(currentScale);
         }
@@ -1870,7 +1901,8 @@ void BM86Xgui::onPausePlot() {
 
 #define _GetTick() static_cast<uint32_t>(QDateTime::currentMSecsSinceEpoch())
 #define UART_DATA_TIMEOUT 20
-void BM86Xgui::onReadSerialPort() {
+void BM86Xgui::onReadSerialPort()
+{
     static uint32_t last_call = _GetTick();
     QByteArray c_buff = mRxBuffer;
     qint8 count = 0;
@@ -1896,7 +1928,10 @@ void BM86Xgui::onReadSerialPort() {
                 mDmmValue = BM86xRawDataToVal((uint8_t*)mRxBuffer.data(), mRxBuffer.size());
                 mDmmData = {
                     .time  = QDateTime::currentDateTime(),
-                    .value = mDmmValue
+                    .value = mDmmValue,
+                    .count = std::abs( static_cast<int>(
+                        mDmmValue.m_value * qPow(10, mDmmValue.m_significant_digits)
+                        ) )
                 };
                 count = 0;
                 mRxBuffer.clear();
@@ -1910,11 +1945,13 @@ END:
     return;
 }
 
-void BM86Xgui::onRestoreLCD() {
+void BM86Xgui::onRestoreLCD()
+{
     displayLCD(mDmmData);
 }
 
-void BM86Xgui::onSavePlot() {
+void BM86Xgui::onSavePlot()
+{
     QString downDir = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
 
     QFileDialog dialog(this, tr("Save Plot"), downDir,
@@ -1962,7 +1999,8 @@ void BM86Xgui::onSavePlot() {
 }
 
 
-void BM86Xgui::onSerialPortError(const QSerialPort::SerialPortError &error) {
+void BM86Xgui::onSerialPortError(const QSerialPort::SerialPortError &error)
+{
     if (error != QSerialPort::NoError) {
         if (mDeviceConnected == true) {
             // Convert the error to a string for display in the status bar
@@ -1978,7 +2016,8 @@ void BM86Xgui::onSerialPortError(const QSerialPort::SerialPortError &error) {
     }
 }
 
-void BM86Xgui::onShowHelp() {
+void BM86Xgui::onShowHelp()
+{
     QPointer<HelpWindow> helpWin = new HelpWindow(this);
 
     helpWin->setAttribute(Qt::WA_DeleteOnClose);

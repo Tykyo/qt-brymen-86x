@@ -8,10 +8,11 @@
 #ifndef DATASTORAGE_H
 #define DATASTORAGE_H
 
-#include <QDateTime>
 #include <QMainWindow>
+#include <QDateTime>
 #include <QTableWidget>
 #include <QtCore/qtimer.h>
+#include <QPointer>
 #include "bm86xdecode.h"
 #include "shortcutaction.h"
 #include "miniaudio.h"
@@ -23,6 +24,7 @@
 typedef struct {
     QDateTime          time;
     BM86x_ValueTypeDef value;
+    int                count;
 } BM86xDataType_s;
 #pragma pack()
 
@@ -85,7 +87,7 @@ private:
     QPointer<QTableWidget> mTableWidget;
     QStringList            mModeStringList;
     QRect                  mCurrentGeometry;
-    QByteArray mWindowGeometry = this->saveGeometry();
+    QByteArray             mWindowGeometry;
     QPointer<QWidget>      mParent;
     int  mLastRow              = 0;
     int  mColumnSize           = 100;

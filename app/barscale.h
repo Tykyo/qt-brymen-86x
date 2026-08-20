@@ -46,7 +46,7 @@ protected:
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing);
 
-        int max = maximum();
+        int max = maximum() + 1; // We add 1, to iterate to maximum()
         int val = value();
         if (max <= 0) return;
 
@@ -120,7 +120,7 @@ protected:
         for (int i = 0; i < max; ++i) {
             QRectF traitRect(i * stepWidth + gap / 2.0, height, traitWidth, height);
 
-            if (i == max - 1 && i < val) { // Triangle on last segment (overflow)
+            if (i == max - 1 && maximum() - 1 < val) { // Triangle on last segment (overflow)
                 double startX = i * stepWidth + gap / 2.0;
                 double endX = startX + stepWidth - gap / 2.0;
                 QPainterPath trianglePath;
@@ -131,7 +131,7 @@ protected:
 
                 painter.fillPath(trianglePath, barColor);
             }
-            else if (i < val) {
+            else if (i <= val || i == 0) {
                 double startX = i * stepWidth;
                 // Center of the segment
                 double centerX = startX + stepWidth / 2.0;

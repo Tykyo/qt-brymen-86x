@@ -200,7 +200,8 @@ void BM86xQwtPlot::onAppendData(const BM86xDataType_s &data) {
     }
 }
 
-void BM86xQwtPlot::onClearData() {
+void BM86xQwtPlot::onClearData()
+{
     main_plot_data.clear();
     aux_plot_data.clear();
 
@@ -211,7 +212,8 @@ void BM86xQwtPlot::onClearData() {
     this->replot();
 }
 
-void BM86xQwtPlot::onFilterDataChanged(const DataStorage::filterData_s &value) {
+void BM86xQwtPlot::onFilterDataChanged(const DataStorage::filterData_s &value)
+{
     // Use a default no-pen style to avoid ambiguity with Qt::NoPen
     QPen tPen = Qt::NoPen;
 
@@ -396,7 +398,8 @@ void BM86xQwtPlot::onFilterDataChanged(const DataStorage::filterData_s &value) {
     this->replot();
 }
 
-void BM86xQwtPlot::onSetAuxVisible(const bool &value) {
+void BM86xQwtPlot::onSetAuxVisible(const bool &value)
+{
     aux_show=value;
 
     if (aux_curve != nullptr) {
@@ -412,7 +415,8 @@ void BM86xQwtPlot::onSetAuxVisible(const bool &value) {
     }
 }
 
-void BM86xQwtPlot::onSetMainVisible(const bool &value) {
+void BM86xQwtPlot::onSetMainVisible(const bool &value)
+{
     main_show=value;
 
     if (main_curve != nullptr) {
@@ -422,7 +426,8 @@ void BM86xQwtPlot::onSetMainVisible(const bool &value) {
     }
 }
 
-void BM86xQwtPlot::onSetPause(const bool &value) {
+void BM86xQwtPlot::onSetPause(const bool &value)
+{
     m_pauseStatus = value;
 
     if (m_pauseStatus) {
@@ -477,7 +482,8 @@ void BM86xQwtPlot::setAntialiasing(const bool &value, bool replot)
         this->replot();
 }
 
-void BM86xQwtPlot::setColorXAxis(const QColor &color, bool replot) {
+void BM86xQwtPlot::setColorXAxis(const QColor &color, bool replot)
+{
     if (color.isValid()) {
         mColorXAxis = color;
 
@@ -621,7 +627,7 @@ void BM86xQwtPlot::setPlotType(const int &type, bool replot)
             main_curve->setCurveAttribute( QwtPlotCurve::Fitted );
         }
         else {
-            main_curve->setCurveAttribute(QwtPlotCurve::Fitted, false);
+            main_curve->setCurveAttribute( QwtPlotCurve::Fitted, false);
         }
 
         if (m_plotType == BM86xPlot::PLOT_SCATTER) {
@@ -643,7 +649,7 @@ void BM86xQwtPlot::setPlotType(const int &type, bool replot)
             aux_curve->setCurveAttribute( QwtPlotCurve::Fitted );
         }
         else {
-            aux_curve->setCurveAttribute(QwtPlotCurve::Fitted, false);
+            aux_curve->setCurveAttribute( QwtPlotCurve::Fitted, false);
         }
 
         if (m_plotType == BM86xPlot::PLOT_SCATTER) {
@@ -661,7 +667,8 @@ void BM86xQwtPlot::setPlotType(const int &type, bool replot)
     }
 }
 
-void BM86xQwtPlot::setBlackAndWhite() {
+void BM86xQwtPlot::setBlackAndWhite()
+{
     static const int symbSize = 4;
     mMainBackupColor = mMainColor;
     mAuxBackupColor = mAuxColor;
@@ -764,10 +771,10 @@ void BM86xQwtPlot::setBlackAndWhite() {
     //Set Aux Unit
     QString auxTitle = "Aux\n";
     if (lastDmmData.value.a_mode == Res || lastDmmData.value.a_mode == Cont) {
-        if (lastDmmData.value.m_unit == ohm_unit) {
+        if (lastDmmData.value.a_unit == ohm_unit) {
             auxTitle.append("\u03A9");
         }
-        else if (lastDmmData.value.m_unit == Kohm_unit) {
+        else if (lastDmmData.value.a_unit == Kohm_unit) {
             auxTitle.append("k\u03A9");
         }
         else {
@@ -782,7 +789,8 @@ void BM86xQwtPlot::setBlackAndWhite() {
     replot();
 }
 
-void BM86xQwtPlot::restoreColor() {
+void BM86xQwtPlot::restoreColor()
+{
     setCurveColor(mMainBackupColor, mAuxBackupColor, false);
     setColorXAxis(mBackupColorXAxis, false);
     setPlotType(m_plotType, false);
@@ -830,55 +838,12 @@ void BM86xQwtPlot::restoreColor() {
     onFilterDataChanged(mLastFilterData); // This do the replot()
 }
 
-#include <algorithm> // For std::lower_bound
-// Returns the smallest index for which list[index].x() >= val.
-// The list must be sorted by x() in ascending order.
-qint64 BM86xQwtPlot::findMinIndex(const QList<QPointF> &list, qint64 val)
-{
-    if (list.isEmpty()) return -1;
-
-    // Looking for the iterator pointing to the first element where x() is >= val
-    auto it = std::lower_bound(list.begin(), list.end(), static_cast<double>(val),
-                               [](const QPointF& element, double value) {
-                                   return element.x() < value;
-                               });
-
-    if (it != list.end()) {
-        return std::distance(list.begin(), it);
-    }
-
-    return -1;
-}
-
-// qint64 BM86xQwtPlot::findMinIndex(const QList<QPointF> &list, qint64 val)
-// {
-//     const qsizetype size = list.size();
-
-//     if (size == 0)
-//         return -1;
-
-//     const QPointF *data = list.constData();
-
-//     qsizetype first = 0;
-//     qsizetype last = size;
-
-//     while (first < last) {
-//         const qsizetype middle = first + (last - first) / 2;
-
-//         if (data[middle].x() < val)
-//             first = middle + 1;
-//         else
-//             last = middle;
-//     }
-
-//     return first < size ? first : -1;
-// }
-
 /* ==============================================================================
  * Private function
  * ==============================================================================
  */
-void BM86xQwtPlot::init() {
+void BM86xQwtPlot::init()
+{
     this->setAxisTitle(QwtPlot::xBottom,"time\n[hh:mm:ss.z]");
     this->setAxisScaleDraw( QwtPlot::xBottom,
                            new TimeScaleDraw() );
@@ -915,16 +880,54 @@ void BM86xQwtPlot::init() {
     this->setPlotType(m_plotType);
 }
 
-BM86xQwtPlot::AxisBoundary BM86xQwtPlot::getBoundaryY(const QVector<QPointF> &data) const {
-    AxisBoundary result = {data.first().y(),data.first().y()};
-    for (auto& point : data) {
-        result.min = ( qMin(result.min, point.y()) );
-        result.max = ( qMax(result.max, point.y()) );
+#include <algorithm> // For std::lower_bound
+// Returns the smallest index for which list[index].x() >= val.
+// The list must be sorted by x() in ascending order.
+qint64 BM86xQwtPlot::findMinIndex(const QList<QPointF> &list, qint64 val)
+{
+    if (list.isEmpty()) return -1;
+
+    // Looking for the iterator pointing to the first element where x() is >= val
+    auto it = std::lower_bound(list.begin(), list.end(), static_cast<double>(val),
+                               [](const QPointF& element, double value) {
+                                   return element.x() < value;
+                               });
+
+    if (it != list.end()) {
+        return std::distance(list.begin(), it);
     }
-    return result;
+
+    return -1;
 }
 
-BM86xQwtPlot::AxisBoundary BM86xQwtPlot::getBoundaryX(const QVector<QPointF> &data) const {
+/*
+qint64 BM86xQwtPlot::findMinIndex(const QList<QPointF> &list, qint64 val)
+{
+    const qsizetype size = list.size();
+
+    if (size == 0)
+        return -1;
+
+    const QPointF *data = list.constData();
+
+    qsizetype first = 0;
+    qsizetype last = size;
+
+    while (first < last) {
+        const qsizetype middle = first + (last - first) / 2;
+
+        if (data[middle].x() < val)
+            first = middle + 1;
+        else
+            last = middle;
+    }
+
+    return first < size ? first : -1;
+}
+*/
+
+BM86xQwtPlot::AxisBoundary BM86xQwtPlot::getBoundaryX(const QVector<QPointF> &data) const
+{
     AxisBoundary result = {data.first().x(),data.first().x()};
     for (auto& point : data) {
         result.min = ( qMin(result.min, point.x()) );
@@ -933,7 +936,18 @@ BM86xQwtPlot::AxisBoundary BM86xQwtPlot::getBoundaryX(const QVector<QPointF> &da
     return result;
 }
 
-BM86xQwtPlot::PlotBoundary BM86xQwtPlot::getPlotBoundary() const {
+BM86xQwtPlot::AxisBoundary BM86xQwtPlot::getBoundaryY(const QVector<QPointF> &data) const
+{
+    AxisBoundary result = {data.first().y(),data.first().y()};
+    for (auto& point : data) {
+        result.min = ( qMin(result.min, point.y()) );
+        result.max = ( qMax(result.max, point.y()) );
+    }
+    return result;
+}
+
+BM86xQwtPlot::PlotBoundary BM86xQwtPlot::getPlotBoundary() const
+{
     PlotBoundary boundary;
     boundary.xBottom.max = this->axisScaleDiv(QwtPlot::xBottom).upperBound();
     boundary.xBottom.min = this->axisScaleDiv(QwtPlot::xBottom).lowerBound();
@@ -945,17 +959,20 @@ BM86xQwtPlot::PlotBoundary BM86xQwtPlot::getPlotBoundary() const {
     return boundary;
 }
 
-void BM86xQwtPlot::savePlotBoundary() {
+void BM86xQwtPlot::savePlotBoundary()
+{
     mPlotBoundary = getPlotBoundary();
 }
 
-void BM86xQwtPlot::setPlotBoundary (const BM86xQwtPlot::PlotBoundary& boundary) {
+void BM86xQwtPlot::setPlotBoundary (const BM86xQwtPlot::PlotBoundary& boundary)
+{
     this->setAxisScale(QwtPlot::xBottom, boundary.xBottom.max, boundary.xBottom.min);
     this->setAxisScale(QwtPlot::yLeft, boundary.yLeft.max, boundary.yLeft.min);
     this->setAxisScale(QwtPlot::yRight, boundary.yRight.max, boundary.yRight.min);
 }
 
-void BM86xQwtPlot::scrollX(int steps) {
+void BM86xQwtPlot::scrollX(int steps)
+{
     const double min = axisScaleDiv(QwtPlot::xBottom).lowerBound();
     const double max = axisScaleDiv(QwtPlot::xBottom).upperBound();
 

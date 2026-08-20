@@ -14,6 +14,7 @@
 #include <QTimer>
 #include <QtNetwork>
 #include <QtWidgets/qpushbutton.h>
+#include <QSettings>
 #include "bm86xdecode.h"
 #include "bm86xplot.h"
 #include "datastorage.h"

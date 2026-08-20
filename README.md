@@ -35,6 +35,22 @@ If you have already cloned the repository without the submodule, initialize it a
 git submodule update --init --recursive
 ```
 
+## Lightweight Clone
+
+If you only want to retrieve the files required for the current checkout, without downloading the complete history of the repositories and submodules, use Git's partial clone with the `blob:none` filter:
+
+```bash
+git clone --filter=blob:none https://github.com/Tykyo/qt-brymen-86x.git
+cd qt-brymen-86x
+git submodule update --init --recursive --filter=blob:none
+```
+
+This avoids downloading historical file contents that are not required by the checked-out revision. The required objects are fetched automatically on demand when needed.
+
+> **Note:** The clone and submodule initialization are intentionally performed as two separate commands. Using `--recurse-submodules` together with `--filter=blob:none` does not reliably propagate the filter to the submodules.
+
+This can significantly reduce the amount of data downloaded, especially for repositories with large files and extensive histories such as `miniaudio`.
+
 ## Firmware
 
 Communication with the multimeter requires the custom interface cable available in the `firmware` submodule.

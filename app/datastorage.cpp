@@ -225,6 +225,7 @@ DataStorage::DataStorage(const QList<QPointer<QAction>> &actionList, QWidget *pa
     mFilterData.aux        = {ui->dSB_aux_min->value(),ui->dSB_aux_max->value()};
 
     Q_EMIT(filterDataChanged(mFilterData));
+    mWindowGeometry = this->saveGeometry();
 }
 
 DataStorage::~DataStorage()
@@ -234,7 +235,8 @@ DataStorage::~DataStorage()
     delete ui;
 }
 
-void DataStorage::setConfig(const config_s &config) {
+void DataStorage::setConfig(const config_s &config)
+{
     ui->cB_sound->setChecked(config.isSoundActive);
     ui->dial_volume->setValue(config.soundVolume);
     ui->cB_Filter_main->setChecked(config.filter.mainActive);
@@ -246,7 +248,8 @@ void DataStorage::setConfig(const config_s &config) {
     ui->dSB_aux_min->setValue(config.filter.aux.min);
 }
 
-DataStorage::config_s DataStorage::getConfig() const {
+DataStorage::config_s DataStorage::getConfig() const
+{
     config_s config;
     config.isSoundActive = ui->cB_sound->isChecked();
     config.soundVolume = ui->dial_volume->value();
@@ -768,7 +771,6 @@ void DataStorage::onExportData()
     }
 }
 
-
 void DataStorage::onClearData()
 {
     mTableWidget->clearContents();
@@ -1170,7 +1172,31 @@ void DataStorage::onSetColorFilter(const filterColor_s &color)
     onApplyFilter();
 }
 
-void DataStorage::playSound() {
+QPixmap DataStorage::setColoredSvg(const QString &svgPath, const QColor &color, const QSize &size)
+{
+    QFile file(svgPath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qWarning("Could not open SVG file: %s", qPrintable(svgPath));
+        return QPixmap();
+    }
+
+    QString svgContent = QString::fromUtf8(file.readAll());
+    file.close();
+
+    svgContent.replace("#000000", color.name(QColor::HexRgb), Qt::CaseInsensitive);
+
+    QImage image(size, QImage::Format_ARGB32);
+    image.fill(Qt::transparent);
+
+    QSvgRenderer renderer(svgContent.toUtf8());
+    QPainter painter(&image);
+    renderer.render(&painter);
+
+    return QPixmap::fromImage(image);
+}
+
+void DataStorage::playSound()
+{
     if (mSoundAvailable == true && ui->cB_sound->isChecked() == true) {
         onStopSound();
         ma_device_start(&mSoundDevice);
@@ -1178,7 +1204,8 @@ void DataStorage::playSound() {
     }
 }
 
-void DataStorage::copySelectionToClipboard() {
+void DataStorage::copySelectionToClipboard()
+{
     // Retrieve selected items from the table widget
     QList<QTableWidgetItem *> items = mTableWidget->selectedItems();
     if (items.isEmpty()) {
@@ -1243,7 +1270,8 @@ void DataStorage::copySelectionToClipboard() {
     clipboard->setText(clipboardText);
 }
 
-QColor DataStorage::mixColors(const QColor &c1, const QColor &c2) {
+QColor DataStorage::mixColors(const QColor &c1, const QColor &c2)
+{
     int r = (c1.red()   + c2.red())   / 2;
     int g = (c1.green() + c2.green()) / 2;
     int b = (c1.blue()  + c2.blue())  / 2;
@@ -1252,7 +1280,8 @@ QColor DataStorage::mixColors(const QColor &c1, const QColor &c2) {
     return QColor(r, g, b, a);
 }
 
-void DataStorage::onVolumeChanged(int value) {
+void DataStorage::onVolumeChanged(int value)
+{
     mSineWaveConfig = ma_waveform_config_init(
         mSoundDevice.playback.format, mSoundDevice.playback.channels,
         mSoundDevice.sampleRate, ma_waveform_type_sine,
@@ -1260,13 +1289,15 @@ void DataStorage::onVolumeChanged(int value) {
     ma_waveform_init(&mSineWaveConfig, &mSineWave);
 }
 
-void DataStorage::onStopSound() {
+void DataStorage::onStopSound()
+{
     if (ma_device_is_started(&mSoundDevice)) {
         ma_device_stop(&mSoundDevice);
     }
 }
 
-void DataStorage::onScrollLock() {
+void DataStorage::onScrollLock()
+{
     mFreeScroll = !mFreeScroll;
     if (mFreeScroll) {
         ui->pB_lockScroll->setIcon(setColoredSvg(":/image/Scroll_ON", QColor(128, 255, 179), ui->pB_Record->iconSize()));
@@ -1277,29 +1308,6 @@ void DataStorage::onScrollLock() {
     }
 }
 
-QPixmap DataStorage::setColoredSvg(const QString &svgPath, const QColor &color, const QSize &size)
-{
-    QFile file(svgPath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qWarning("Could not open SVG file: %s", qPrintable(svgPath));
-        return QPixmap();
-    }
-
-    QString svgContent = QString::fromUtf8(file.readAll());
-    file.close();
-
-    svgContent.replace("#000000", color.name(QColor::HexRgb), Qt::CaseInsensitive);
-
-    QImage image(size, QImage::Format_ARGB32);
-    image.fill(Qt::transparent);
-
-    QSvgRenderer renderer(svgContent.toUtf8());
-    QPainter painter(&image);
-    renderer.render(&painter);
-
-    return QPixmap::fromImage(image);
-}
-
 void DataStorage::closeEvent(QCloseEvent *event)
 {
     Q_EMIT showStatusChanged(false);
@@ -1308,14 +1316,16 @@ void DataStorage::closeEvent(QCloseEvent *event)
     QMainWindow::closeEvent(event);
 }
 
-void DataStorage::hideEvent(QHideEvent *event) {
+void DataStorage::hideEvent(QHideEvent *event)
+{
     Q_EMIT(showStatusChanged(false));
     mWindowGeometry = this->saveGeometry();
 
     QMainWindow::hideEvent(event);
 }
 
-void DataStorage::showEvent(QShowEvent *event) {
+void DataStorage::showEvent(QShowEvent *event)
+{
     /* Set Window size */
     if (mCurrentGeometry.isEmpty()) {
         QRect screen_geometry = mParent->screen()->availableGeometry();
@@ -1325,7 +1335,7 @@ void DataStorage::showEvent(QShowEvent *event) {
         mCurrentGeometry = QRect(
             mParent->x() + mParent->geometry().width(),
             mParent->geometry().top(),
-            mColumnSize * 10 + 40, mParent->geometry().height()
+            mColumnSize * (mTableHeader.size() + 1) + 40, mParent->geometry().height()
         );
         // Check enough room right of main window
         if (mCurrentGeometry.width() + mCurrentGeometry.x() < screen_geometry.width()) {
@@ -1378,7 +1388,8 @@ void DataStorage::showEvent(QShowEvent *event) {
     QMainWindow::showEvent(event);
 }
 
-void DataStorage::keyPressEvent(QKeyEvent *event) {
+void DataStorage::keyPressEvent(QKeyEvent *event)
+{
     // Intercept Ctrl+C
     if (event->key() == Qt::Key_C && (event->modifiers() & Qt::ControlModifier)) {
         copySelectionToClipboard();

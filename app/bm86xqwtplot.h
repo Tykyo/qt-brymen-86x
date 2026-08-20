@@ -101,14 +101,14 @@ public:
     explicit BM86xQwtPlot( QWidget* = NULL );
 
     int  findNearestIndexX (const QVector<QPointF> &data, double targetX) const;
-    void setAntialiasing (const bool &value, bool replot = true);
-    void setColorXAxis (const QColor& color, bool replot = true);
-    void setCurveColor (const QColor &main_color, const QColor &aux_color, bool replot = true);
-    void setMousePosColor (const QColor &color, bool replot = true);
-    void setPlotScale (const int &scale, bool replot = true);
-    void setPlotType (const int &type, bool replot = true);
-    void setBlackAndWhite ();
-    void restoreColor ();
+    void setAntialiasing   (const bool &value, bool replot = true);
+    void setColorXAxis     (const QColor& color, bool replot = true);
+    void setCurveColor     (const QColor &main_color, const QColor &aux_color, bool replot = true);
+    void setMousePosColor  (const QColor &color, bool replot = true);
+    void setPlotScale      (const int &scale, bool replot = true);
+    void setPlotType       (const int &type, bool replot = true);
+    void setBlackAndWhite  ();
+    void restoreColor      ();
 
     int  getPlotScale   () const {return m_plotScale;}
     int  getPlotType    () const {return m_plotType;}
@@ -117,12 +117,12 @@ public:
     bool isAuxVisible   () const {return aux_show;}
 
 public Q_SLOTS:
-    void onAppendData (const BM86xDataType_s &data);
-    void onClearData (void);
+    void onAppendData        (const BM86xDataType_s &data);
+    void onClearData         (void);
     void onFilterDataChanged (const DataStorage::filterData_s &value);
-    void onSetAuxVisible (const bool &value);
-    void onSetMainVisible (const bool &value);
-    void onSetPause (const bool &value);
+    void onSetAuxVisible     (const bool &value);
+    void onSetMainVisible    (const bool &value);
+    void onSetPause          (const bool &value);
 
 private:
     struct AxisBoundary
@@ -145,6 +145,7 @@ private:
     bool main_show = true;
     bool aux_show = true;
     bool m_isMouseOverPlot = false;
+
     QPointF m_lastMousePos;
     QVector<QPointF> main_plot_data;
     QVector<QPointF> aux_plot_data;
@@ -205,14 +206,14 @@ private:
     BM86x_UnitTypeDef aux_previousUnit  = last_unit;
     BM86x_PeakModeTypeDef previousPeak  = last_peak_mode;
 
-    void   init ();
-    qint64 findMinIndex (const QList<QPointF> &list, qint64 val);
-    AxisBoundary getBoundaryX (const QVector<QPointF> &data) const;
-    AxisBoundary getBoundaryY (const QVector<QPointF> &data) const;
-    PlotBoundary getPlotBoundary () const;
-    void savePlotBoundary ();
-    void setPlotBoundary (const PlotBoundary& boundary);
-    void scrollX (int steps=1);
+    void         init ();
+    qint64       findMinIndex     (const QList<QPointF> &list, qint64 val);
+    AxisBoundary getBoundaryX     (const QVector<QPointF> &data) const;
+    AxisBoundary getBoundaryY     (const QVector<QPointF> &data) const;
+    PlotBoundary getPlotBoundary  () const;
+    void         savePlotBoundary ();
+    void         setPlotBoundary  (const PlotBoundary& boundary);
+    void         scrollX          (int steps=1);
 
     void requestPause() { if (!m_pauseStatus) Q_EMIT(pausePlot()); }
     // void requestPlay() { if (m_pauseStatus) Q_EMIT(pausePlot()); }
