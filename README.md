@@ -119,6 +119,7 @@ The firmware can be built using PlatformIO.
 
 ![Main Window](./app/resources/screenshot-1.png)
 ![Data Window](./app/resources/screenshot-2.png)
+![Data Window](./app/resources/screenshot-3.png)
 
 ## Requirements
 
@@ -171,10 +172,12 @@ On macOS, the deployment folder contains a `.app` bundle and a `.dmg` package.
 
 The `deploy` target can be integrated directly into Qt Creator.
 
-Open your project's **Build Settings** and add a new **Build Step**:
+Open your project's **Deploy Settings** and add a new **Deploy Step**:
 
 * **Step:** `Make`
 * **Arguments:** `deploy`
+
+You can then deploy the application simply by selecting **Deploy** from the project's context menu in Qt Creator.
 
 The deployed application can then be run on systems without a Qt development environment installed.
 

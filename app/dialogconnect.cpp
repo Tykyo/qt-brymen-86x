@@ -18,7 +18,7 @@ DialogConnect::DialogConnect(QSerialPort *serialPort, QWidget *parent)
     , pSerialPort(serialPort)
 {
     ui->setupUi(this);
-    setWindowTitle("UART connect");
+    setWindowTitle(QString(_TARGET) + " - UART connect");
 
     QObject::connect(ui->cB_Uart, &QComboBox::currentIndexChanged, this, &DialogConnect::updateSerialPort);
     QObject::connect(ui->cB_Uart, &QComboBox::currentIndexChanged, this, [=, this] (int index) {

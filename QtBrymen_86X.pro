@@ -12,6 +12,7 @@ SUBDIRS += \
 # ==============================================================================
 # ==============================================================================
 deploy.commands = @echo "=== DEPLOYMENT START ===" $$escape_expand(\\n\\t)
+TARGET_NAME = BM86x
 
 # ==============================================================================
 # Windows Configuration (MinGW / MSVC)
@@ -22,7 +23,7 @@ win32 {
     TARGET_DLL  = $$shell_path($$LIB_DIR/qwt.dll)
     INSTALL_DIR = $$shell_path($$OUT_PWD/install)
 
-    TARGET_EXE  = $$shell_path($$OUT_PWD/app/BM86x.exe)
+    TARGET_EXE  = $$shell_path($$OUT_PWD/app/$${TARGET_NAME}.exe)
 
     # 1. Create the installation folder if it does not exist
     deploy.commands += @if not exist $$INSTALL_DIR mkdir $$INSTALL_DIR $$escape_expand(\\n\\t)
@@ -31,7 +32,7 @@ win32 {
     # 3. Copy the Qwt library dependency
     deploy.commands += copy /y $$TARGET_DLL $$INSTALL_DIR $$escape_expand(\\n\\t)
     # 4. Run Qt's deployment tool to copy all required Qt DLLs automatically
-    deploy.commands += windeployqt6 $$shell_path($$INSTALL_DIR/BM86x.exe) $$escape_expand(\\n\\t)
+    deploy.commands += windeployqt6 $$shell_path($$INSTALL_DIR/$${TARGET_NAME}.exe) $$escape_expand(\\n\\t)
 }
 
 # ==============================================================================
@@ -41,11 +42,11 @@ unix:!macx {
     deploy.commands += @echo "--- Linux deployment ---" $$escape_expand(\\n\\t)
 
     # Attention : no $$quote() or $$shell_path() here for TARGET_DLL because we use '*'
-    TARGET_EXE  = $$shell_path($$OUT_PWD/app/BM86x)
+    TARGET_EXE  = $$shell_path($$OUT_PWD/app/$${TARGET_NAME})
     TARGET_DLL  = $$OUT_PWD/3rdparty/qwt/qwt/lib/libqwt.so*
     INSTALL_DIR = $$shell_path($$OUT_PWD/install)
 
-    COPIED_EXE  = $$shell_path($$INSTALL_DIR/BM86x)
+    COPIED_EXE  = $$shell_path($$INSTALL_DIR/$${TARGET_NAME})
 
     # 1. Create the installation directory
     deploy.commands += @mkdir -p $$shell_path($$INSTALL_DIR/lib) $$escape_expand(\\n\\t)
@@ -63,7 +64,7 @@ unix:!macx {
     deploy.commands += bash $$shell_path($$PWD/deployment/linux/linux_install.sh) \
         $$shell_path($$[QT_INSTALL_PLUGINS]) \
         $$shell_path($$[QT_INSTALL_LIBS]) \
-        $$INSTALL_DIR $$escape_expand(\\n\\t)
+        $$INSTALL_DIR $${TARGET_NAME} $$escape_expand(\\n\\t)
 }
 
 # ==============================================================================
@@ -71,12 +72,12 @@ unix:!macx {
 # ==============================================================================
 macx {
     deploy.commands += @echo "--- MacOS deployment ---" $$escape_expand(\\n\\t)
-    BUILD_EXE   = $$shell_path($$OUT_PWD/app/BM86x.app)
+    BUILD_EXE   = $$shell_path($$OUT_PWD/app/$${TARGET_NAME}.app)
     INSTALL_DIR = $$shell_path($$OUT_PWD/install)
     TARGET_EXE  = $$BUILD_EXE
 
     CONFIG(no_bundle_qwt) {
-        TARGET_EXE       = $$shell_path($$INSTALL_DIR/BM86x.app)
+        TARGET_EXE       = $$shell_path($$INSTALL_DIR/$${TARGET_NAME}.app)
         deploy.commands += @mkdir -p $$INSTALL_DIR $$escape_expand(\\n\\t)
         deploy.commands += @rsync -a $$BUILD_EXE $$INSTALL_DIR/ $$escape_expand(\\n\\t)
         deploy.commands += @echo "qwt.framework is bundled into the app" $$escape_expand(\\n\\t)

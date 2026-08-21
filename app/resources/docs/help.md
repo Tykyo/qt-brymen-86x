@@ -15,6 +15,7 @@ This guide provides an overview of the application features and explains the mai
 * **Plot > Clear**: Clear the graph.
 * **Plot > Print**: Print the graph.
 * **Plot > B&W Save/Print**: Flag to set Black and White color on svae and print (Main: solid line, Aux: dashed line).
+* **Plot > Hide**: Flag to hide/show plot and controls.
 * **Data > Export**: Export multimeter data to an XLSX or CSV file.
 * **Data > Review**: Open the window containing recorded multimeter data.
 * **Data > Clear**: Clear all recorded data.

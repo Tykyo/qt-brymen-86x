@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 QT_INSTALL_PLUGINS="${1}"
 QT_LIB_DIR="${2}"
 INSTALL_DIR="${3}"
+TARGET_NAME="${4}"
 
 QT_PLUGIN_LIST="${SCRIPT_DIR}/qt_plugins_linux.txt"
 
@@ -45,7 +46,7 @@ do
 	fi
 done < "${QT_PLUGIN_LIST}"
 
-ldd "${INSTALL_DIR}/BM86x" \
+ldd "${INSTALL_DIR}/${TARGET_NAME}" \
 | grep "${QT_LIB_DIR}" \
 | awk '{print $3}' \
 | xargs -r -I{} rsync -a --copy-links "{}" "${INSTALL_DIR}/lib/"
@@ -68,11 +69,11 @@ done
 # Patch executable
 # Set ($ORIGIN/lib) to the existing RUNPATH.
 # This allows the executable to find bundled libraries located next to it.
-if ! patchelf --print-rpath "${INSTALL_DIR}/BM86x" | grep -q '\$ORIGIN/lib'; then
-	echo "Executable : ${INSTALL_DIR}/BM86x - Setting \$ORIGIN/lib to RUNPATH"
-	patchelf --set-rpath "\$ORIGIN/lib" "${INSTALL_DIR}/BM86x"
+if ! patchelf --print-rpath "${INSTALL_DIR}/${TARGET_NAME}" | grep -q '\$ORIGIN/lib'; then
+	echo "Executable : ${INSTALL_DIR}/${TARGET_NAME} - Setting \$ORIGIN/lib to RUNPATH"
+	patchelf --set-rpath "\$ORIGIN/lib" "${INSTALL_DIR}/${TARGET_NAME}"
 else
-	echo "Executable : ${INSTALL_DIR}/BM86x - RUNPATH already contains \$ORIGIN/lib"
+	echo "Executable : ${INSTALL_DIR}/${TARGET_NAME} - RUNPATH already contains \$ORIGIN/lib"
 fi
 
 cat <<EOF > "${INSTALL_DIR}/qt.conf"

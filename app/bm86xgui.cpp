@@ -133,6 +133,13 @@ BM86Xgui::BM86Xgui(QWidget *parent)
     });
 
     mActionShortcutList.append({
+        "Hide",
+        "Hide plot and control",
+        ui->actionHide,
+        Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_H
+    });
+
+    mActionShortcutList.append({
         "Review",
         "Open Review Data",
         ui->actionReview,
@@ -285,6 +292,13 @@ BM86Xgui::BM86Xgui(QWidget *parent)
     QObject::connect(ui->actionTest_LCD, &QAction::triggered, this, &BM86Xgui::onTestLCD);
     QObject::connect(ui->actionAntialiasing, &QAction::triggered, this, [=, this] (bool value) {
         ui->qtPlot->setAntialiasing(value);
+    });
+    QObject::connect(ui->actionHide, &QAction::toggled, this, [this](bool checked) {
+        ui->framePlot->setHidden(checked);
+
+        QMetaObject::invokeMethod(this, [this]() {
+            this->adjustSize();
+        }, Qt::QueuedConnection);
     });
     QObject::connect(ui->actionClear_Settings, &QAction::triggered, this, [=, this] () {
         clearSettings = true;
@@ -446,7 +460,7 @@ BM86Xgui::BM86Xgui(QWidget *parent)
 
     // 3. Define the settings file path
     // We use QFileInfo to correctly handle path separators across OSes
-    settingsFilePath = QFileInfo(dir, "BM86x.ini").absoluteFilePath();
+    settingsFilePath = QFileInfo(dir, QString(_TARGET) + ".ini").absoluteFilePath();
 
     // 4. Initialize QSettings
     // Passing the file path explicitly forces INI format regardless of OS defaults
@@ -459,6 +473,7 @@ BM86Xgui::BM86Xgui(QWidget *parent)
 
     // read the configuration and apply
     readSettings();
+
 END:
     testLCD(2000);
 }
@@ -503,6 +518,8 @@ void BM86Xgui::readSettings()
         ( QString( readValue( mSettings, "Plot/Aux_vis", "1" ) ).toInt() );
     ui->actionB_W_Save_Print->setChecked
         ( QString( readValue( mSettings, "Plot/BW", "0" ) ).toInt() );
+    ui->actionHide->setChecked
+        ( QString( readValue( mSettings, "Plot/Hide", "0" ) ).toInt() );
 
     // Read Color mSettings
     setColorMain     ( QColor( readValue( mSettings, "Color/main",  "#FFCC00" ) ) );
@@ -555,6 +572,7 @@ void BM86Xgui::saveSettings()
     saveValue( mSettings, "Plot/Main_vis",       QString::number( ui->qtPlot->isMainVisible() ) );
     saveValue( mSettings, "Plot/Aux_vis",        QString::number( ui->qtPlot->isAuxVisible() ) );
     saveValue( mSettings, "Plot/BW",             QString::number( ui->actionB_W_Save_Print->isChecked() ) );
+    saveValue( mSettings, "Plot/Hide",           QString::number( ui->actionHide->isChecked() ) );
 
     // Save Color
     saveValue( mSettings, "Color/main",          mColorMain.name() );
@@ -947,7 +965,7 @@ QString BM86Xgui::getAppConfigPath()
 
     // Fallback if QStandardPaths fails (rare, but good practice)
     if (path.isEmpty()) {
-        path = QDir::homePath() + "/.config/BM86Xgui";
+        path = QDir::homePath() + "/.config/" + QString(_TARGET) + "gui";
     }
 
     return path;
@@ -1240,7 +1258,7 @@ void BM86Xgui::renderPlot(QPaintDevice *device)
 
 void BM86Xgui::savePDF(const QString &file)
 {
-    QString title = "BM86x : "
+    QString title = QString(_TARGET) + " : "
                     + QDate::currentDate().toString("yyyyMMdd")
                     + "_"
                     + QTime::currentTime().toString("hh-mm-ss");
@@ -1292,7 +1310,7 @@ void BM86Xgui::savePNG(const QString &file)
 
 void BM86Xgui::saveSVG(const QString &file)
 {
-    QString title = "BM86x : "
+    QString title = QString(_TARGET) + " : "
                     + QDate::currentDate().toString("yyyyMMdd")
                     + "_"
                     + QTime::currentTime().toString("hh-mm-ss");
@@ -1302,7 +1320,7 @@ void BM86Xgui::saveSVG(const QString &file)
     generator.setTitle(title);
     generator.setFileName(file);
     generator.setResolution(resolution);
-    generator.setDescription(tr("BM86x"));
+    generator.setDescription(tr(_TARGET));
 
     QPageSize page_size(QPageSize::A4);
     QSizeF sizeInch = page_size.size(QPageSize::Inch);
@@ -1904,45 +1922,37 @@ void BM86Xgui::onPausePlot()
 void BM86Xgui::onReadSerialPort()
 {
     static uint32_t last_call = _GetTick();
-    QByteArray c_buff = mRxBuffer;
-    qint8 count = 0;
-    mRxBuffer.clear();
-    if (mUseTcpSocket) {
-        c_buff.append(mTcpSocket.readAll());
-    } else {
-        c_buff.append(mSerialPort.readAll());
-    }
-
     uint32_t now = _GetTick();
-    if ((c_buff.size() > BM_DATA_SIZE) && (last_call - now > UART_DATA_TIMEOUT)) {
-        goto END;
+
+    // 1. Timeout : purge buffer if communication is lost too long
+    if ((now - last_call) > UART_DATA_TIMEOUT) {
+        mRxBuffer.clear();
     }
-
-    if (!c_buff.isEmpty()) {
-        for (QByteArray::iterator i = c_buff.begin(); i != c_buff.end(); i++) {
-            count++;
-            mRxBuffer.append(*i);
-
-            if (count == BM_DATA_SIZE) {
-                // qDebug() << "Received raw data:" << rxBuffer.toHex(' ').toUpper();
-                mDmmValue = BM86xRawDataToVal((uint8_t*)mRxBuffer.data(), mRxBuffer.size());
-                mDmmData = {
-                    .time  = QDateTime::currentDateTime(),
-                    .value = mDmmValue,
-                    .count = std::abs( static_cast<int>(
-                        mDmmValue.m_value * qPow(10, mDmmValue.m_significant_digits)
-                        ) )
-                };
-                count = 0;
-                mRxBuffer.clear();
-                Q_EMIT(dataReceived(mDmmData));
-            }
-        }
-    }
-
-END:
     last_call = now;
-    return;
+
+    // 2. Accumulate incomming data
+    if (mUseTcpSocket) {
+        mRxBuffer.append(mTcpSocket.readAll());
+    } else {
+        mRxBuffer.append(mSerialPort.readAll());
+    }
+
+    // 3. Handle fixed data block (BM_DATA_SIZE = 20)
+    while (mRxBuffer.size() >= BM_DATA_SIZE) {
+        QByteArray frame = mRxBuffer.left(BM_DATA_SIZE);
+        mRxBuffer.remove(0, BM_DATA_SIZE);
+
+        mDmmValue = BM86xRawDataToVal((uint8_t*)frame.constData(), frame.size());
+        mDmmData = {
+            .time  = QDateTime::currentDateTime(),
+            .value = mDmmValue,
+            .count = std::abs(static_cast<int>(
+                mDmmValue.m_value * qPow(10, mDmmValue.m_significant_digits)
+                ))
+        };
+
+        Q_EMIT dataReceived(mDmmData);
+    }
 }
 
 void BM86Xgui::onRestoreLCD()

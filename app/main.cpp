@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     // macOS: ~/Library/Application Support/Organization/ApplicationName
     // Linux: ~/.local/share/Organization/ApplicationName
     QCoreApplication::setOrganizationName("Tykyo");  // Your company/author name
-    QCoreApplication::setApplicationName("BM86x");   // Your application name
+    QCoreApplication::setApplicationName(QString(_TARGET));   // Your application name
 
     a.setStyle(QStyleFactory::create("Fusion"));
     QGuiApplication::styleHints()->setColorScheme(Qt::ColorScheme::Dark);

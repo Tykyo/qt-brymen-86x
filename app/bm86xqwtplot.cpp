@@ -1094,7 +1094,7 @@ bool BM86xQwtPlot::eventFilter(QObject *obj, QEvent *event)
 
                 m_positionLabelText = QString("X=%1, Y=%2").
                                       arg(dt.toString("hh:mm:ss.z")).
-                                      arg(y, 0, 'f', 2);
+                                      arg(y, 0, 'g', 5);
 
                 m_positionLabelText.setRenderFlags(Qt::AlignLeft | Qt::AlignBottom);
                 m_positionLabelText.setBackgroundBrush(QBrush(Qt::transparent));

@@ -280,7 +280,7 @@ void DataStorage::onPrintData(void)
     QString html;
     html.reserve(50000);
 
-    html += "<h2>BM86x Measurements</h2>";
+    html += "<h2>" + QString(_TARGET) + " Measurements</h2>";
     html += "<p>";
     html += QDateTime::currentDateTime().toString();
     html += "</p>";
@@ -720,7 +720,7 @@ void DataStorage::onExportData()
         xlsxW.setColumnFormat(1, columnCount, formatColumn);
         xlsxW.autosizeColumnWidth(1, columnCount);
 
-        xlsxW.setDocumentProperty("title",QString("BM86x Measurement"));
+        xlsxW.setDocumentProperty("title",QString(QString(_TARGET) + " Measurement"));
         xlsxW.setDocumentProperty("description",QString("Measurement : %1").arg(QDateTime::currentDateTime().toString()));
         xlsxW.setDocumentProperty("keywords",QString("DMM"));
 
