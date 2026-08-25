@@ -434,8 +434,11 @@ BM86Xgui::BM86Xgui(QWidget *parent)
     ui->cBplot->setItemIcon(2,setColoredSvg(":/image/Scatter", QColor(255, 128, 229),ui->cBplot->iconSize()));
 
     // Set read speed
+    static const QRegularExpression pattern(QStringLiteral("^Speed : "));
     for (int i=0; i < last_speed; i++) {
-        ui->cBSpeed->addItem(ReadSpeedTimeText[i]);
+        QString speedText = ReadSpeedTimeText[i];
+        speedText.remove(pattern);
+        ui->cBSpeed->addItem(speedText);
     }
 
     initLCD();
@@ -473,6 +476,10 @@ BM86Xgui::BM86Xgui(QWidget *parent)
 
     // read the configuration and apply
     readSettings();
+
+    QMetaObject::invokeMethod(this, [this]() {
+        this->adjustSize();
+    }, Qt::QueuedConnection);
 
 END:
     testLCD(2000);

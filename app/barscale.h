@@ -48,6 +48,7 @@ protected:
 
         int max = maximum() + 1; // We add 1, to iterate to maximum()
         int val = value();
+        double gap = 6.0;
         if (max <= 0) return;
 
         double totalWidth = rect().width();
@@ -61,6 +62,8 @@ protected:
         // Calculate font for labels
         QFont font = painter.font();
         font.setBold(true);
+        font.setPixelSize(height - gap / 2.0);
+
         painter.setFont(font);
         painter.setPen(barColor);
         QFontMetrics fm(painter.font());
@@ -81,7 +84,6 @@ protected:
             }
             else if (i % 8 == 0) { // Digit
                 QString labelText = QString::number(i / 8);
-                QFontMetrics fm(painter.font());
 
                 double x = textRect.center().x() - fm.horizontalAdvance(labelText) / 2.0;
                 double y = textRect.top() + fm.ascent();
@@ -114,7 +116,6 @@ protected:
         }
 
         // We draw the scale bar next
-        double gap = 6.0;
         double traitWidth = stepWidth - gap;
 
         for (int i = 0; i < max; ++i) {

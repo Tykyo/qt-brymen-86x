@@ -88,6 +88,10 @@ unix:!macx {
         QMAKE_LFLAGS += \
             -fsanitize=address
     }
+
+    OTHER_FILES += \
+        $$PWD/../deployment/linux/linux_install.sh \
+        $$PWD/../deployment/linux/qt_plugins_linux.txt
 }
 
 # ==============================================================================
@@ -145,6 +149,11 @@ macx {
         message("Signing script not found: $$CODESIGN_SCRIPT. Performing local ad-hoc signing.")
         QMAKE_POST_LINK += codesign --force -s - $$TARGET_EXE $$escape_expand(\\n\\t)
     }
+
+    OTHER_FILES += \
+        $$PWD/../deployment/macx/bundle_dmg.sh \
+        $$PWD/../deployment/macx/codesign.sh \
+        $$PWD/../deployment/macx/USB.entitlements
 }
 
 # Check Qwt version
