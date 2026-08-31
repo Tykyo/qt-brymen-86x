@@ -23,7 +23,7 @@ DialogConnect::DialogConnect(QSerialPort *serialPort, QWidget *parent)
     QObject::connect(ui->cB_Uart, &QComboBox::currentIndexChanged, this, &DialogConnect::updateSerialPort);
     QObject::connect(ui->cB_Uart, &QComboBox::currentIndexChanged, this, [=, this] (int index) {
         if (ui->cB_Uart->itemText(index) != "TCP_IP") {
-            ui->label_Descr->setText(infos.at(index).description());
+            ui->label_Descr->setText(mInfos.at(index).description());
         }
         else {
             ui->label_Descr->setText("");
@@ -43,26 +43,38 @@ void DialogConnect::refreshSerialPort() {
 
     const QList<QSerialPortInfo> unfilteredInfos = QSerialPortInfo::availablePorts();
 #if defined(__APPLE__)
-    static QRegularExpression portRE("cu\\.usb.*"); //List only USB COM port
+    static QRegularExpression portRE("cu\\..*usb.*" ,QRegularExpression::CaseInsensitiveOption); //List only USB COM port
+    static QRegularExpression portREall("cu\\..*" ,QRegularExpression::CaseInsensitiveOption); //List cu. port
 #elif defined(__linux__)
     static QRegularExpression portRE("tty[AU].*"); //List only USB COM port
+    static QRegularExpression portREall("tty\\..*" ,QRegularExpression::CaseInsensitiveOption); //List tty. port
 #else
     static QRegularExpression portRE("COM.*");
 #endif
 
     for (const QSerialPortInfo &info : unfilteredInfos) {
         if (QString(info.portName()).contains(portRE)) {
-            infos.append(info);
+            mInfos.append(info);
         }
     }
+
+#if defined(__APPLE__) || defined(__linux__)
+    if (mInfos.empty()) {
+        for (const QSerialPortInfo &info : unfilteredInfos) {
+            if (QString(info.portName()).contains(portREall)) {
+                mInfos.append(info);
+            }
+        }
+    }
+#endif
 
     ui->cB_Uart->clear();
     const QString blankStr = QString::fromUtf8(blankString);
 
-    for (int i = 0; i < infos.size(); ++i) {
+    for (int i = 0; i < mInfos.size(); ++i) {
         // Access the current port info by reference.
         // .at(i) is faster than [] because it doesn't perform bounds checking in release mode.
-        const QSerialPortInfo &info = infos.at(i);
+        const QSerialPortInfo &info = mInfos.at(i);
 
         const QString description = info.description();
         const QString manufacturer = info.manufacturer();
@@ -110,7 +122,7 @@ void DialogConnect::refreshSerialPort() {
     int CurrentIndex = ui->cB_Uart->findText(CurrentPort);
     if (CurrentIndex >= 0)
         ui->cB_Uart->setCurrentIndex(CurrentIndex);
-    else if (!infos.isEmpty())
+    else if (!mInfos.isEmpty())
         ui->cB_Uart->setCurrentIndex(0);
 
 }

@@ -69,36 +69,10 @@ void BM86xQwtPlot::onAppendData(const BM86xDataType_s &data) {
     {
         onClearData();
         //Set Main Unit
-        if (data.value.m_mode == Res || data.value.m_mode == Cont) {
-            if (data.value.m_unit == ohm_unit) {
-                this->setAxisTitle(QwtPlot::yLeft,"\u03A9");
-            }
-            else if (data.value.m_unit == Kohm_unit) {
-                this->setAxisTitle(QwtPlot::yLeft,"k\u03A9");
-            }
-            else {
-                this->setAxisTitle(QwtPlot::yLeft,"M\u03A9");
-            }
-        }
-        else {
-            this->setAxisTitle(QwtPlot::yLeft,data.value.m_unitString);
-        }
+        this->setAxisTitle(QwtPlot::yLeft,data.value.m_unitString);
 
         //Set Aux Unit
-        if (data.value.a_mode == Res || data.value.a_mode == Cont) {
-            if (data.value.a_unit == ohm_unit) {
-                this->setAxisTitle(QwtPlot::yRight,"\u03A9");
-            }
-            else if (data.value.a_unit == Kohm_unit) {
-                this->setAxisTitle(QwtPlot::yRight,"k\u03A9");
-            }
-            else {
-                this->setAxisTitle(QwtPlot::yRight,"M\u03A9");
-            }
-        }
-        else {
-            this->setAxisTitle(QwtPlot::yRight,data.value.a_unitString);
-        }
+        this->setAxisTitle(QwtPlot::yRight,data.value.a_unitString);
     }
 
     if ((data.value.peakMode != None && previousPeak == None)
@@ -209,6 +183,15 @@ void BM86xQwtPlot::onClearData()
 
     time  = QDateTime::currentDateTime();
     zoomer->setZoomBase();
+
+    if (main_curve) {
+        main_curve->setSamples(main_plot_data);
+    }
+
+    if (aux_curve) {
+        aux_curve->setSamples(aux_plot_data);
+    }
+
     this->replot();
 }
 
@@ -752,38 +735,12 @@ void BM86xQwtPlot::setBlackAndWhite()
     // Change axis title
     //Set Main Unit
     QString mainTitle = "Main\n";
-    if (lastDmmData.value.m_mode == Res || lastDmmData.value.m_mode == Cont) {
-        if (lastDmmData.value.m_unit == ohm_unit) {
-            mainTitle.append("\u03A9");
-        }
-        else if (lastDmmData.value.m_unit == Kohm_unit) {
-            mainTitle.append("k\u03A9");
-        }
-        else {
-            mainTitle.append("M\u03A9");
-        }
-    }
-    else {
-        mainTitle.append(lastDmmData.value.m_unitString);
-    }
+    mainTitle.append(lastDmmData.value.m_unitString);
     this->setAxisTitle(QwtPlot::yLeft,mainTitle);
 
     //Set Aux Unit
     QString auxTitle = "Aux\n";
-    if (lastDmmData.value.a_mode == Res || lastDmmData.value.a_mode == Cont) {
-        if (lastDmmData.value.a_unit == ohm_unit) {
-            auxTitle.append("\u03A9");
-        }
-        else if (lastDmmData.value.a_unit == Kohm_unit) {
-            auxTitle.append("k\u03A9");
-        }
-        else {
-            auxTitle.append("M\u03A9");
-        }
-    }
-    else {
-        auxTitle.append(lastDmmData.value.a_unitString);
-    }
+    auxTitle.append(lastDmmData.value.a_unitString);
     this->setAxisTitle(QwtPlot::yRight,auxTitle);
 
     replot();
@@ -804,36 +761,10 @@ void BM86xQwtPlot::restoreColor()
 
     // Reset axis title
     //Set Main Unit
-    if (lastDmmData.value.m_mode == Res || lastDmmData.value.m_mode == Cont) {
-        if (lastDmmData.value.m_unit == ohm_unit) {
-            this->setAxisTitle(QwtPlot::yLeft,"\u03A9");
-        }
-        else if (lastDmmData.value.m_unit == Kohm_unit) {
-            this->setAxisTitle(QwtPlot::yLeft,"k\u03A9");
-        }
-        else {
-            this->setAxisTitle(QwtPlot::yLeft,"M\u03A9");
-        }
-    }
-    else {
-        this->setAxisTitle(QwtPlot::yLeft,lastDmmData.value.m_unitString);
-    }
+    this->setAxisTitle(QwtPlot::yLeft,lastDmmData.value.m_unitString);
 
     //Set Aux Unit
-    if (lastDmmData.value.a_mode == Res || lastDmmData.value.a_mode == Cont) {
-        if (lastDmmData.value.a_unit == ohm_unit) {
-            this->setAxisTitle(QwtPlot::yRight,"\u03A9");
-        }
-        else if (lastDmmData.value.a_unit == Kohm_unit) {
-            this->setAxisTitle(QwtPlot::yRight,"k\u03A9");
-        }
-        else {
-            this->setAxisTitle(QwtPlot::yRight,"M\u03A9");
-        }
-    }
-    else {
-        this->setAxisTitle(QwtPlot::yRight,lastDmmData.value.a_unitString);
-    }
+    this->setAxisTitle(QwtPlot::yRight,lastDmmData.value.a_unitString);
 
     onFilterDataChanged(mLastFilterData); // This do the replot()
 }
@@ -899,32 +830,6 @@ qint64 BM86xQwtPlot::findMinIndex(const QList<QPointF> &list, qint64 val)
 
     return -1;
 }
-
-/*
-qint64 BM86xQwtPlot::findMinIndex(const QList<QPointF> &list, qint64 val)
-{
-    const qsizetype size = list.size();
-
-    if (size == 0)
-        return -1;
-
-    const QPointF *data = list.constData();
-
-    qsizetype first = 0;
-    qsizetype last = size;
-
-    while (first < last) {
-        const qsizetype middle = first + (last - first) / 2;
-
-        if (data[middle].x() < val)
-            first = middle + 1;
-        else
-            last = middle;
-    }
-
-    return first < size ? first : -1;
-}
-*/
 
 BM86xQwtPlot::AxisBoundary BM86xQwtPlot::getBoundaryX(const QVector<QPointF> &data) const
 {

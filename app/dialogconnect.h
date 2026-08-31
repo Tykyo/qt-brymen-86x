@@ -27,7 +27,7 @@ public:
 private:
     Ui::DialogConnect *ui;
     QPointer<QSerialPort> pSerialPort = nullptr;
-    QList<QSerialPortInfo> infos;
+    QList<QSerialPortInfo> mInfos;
 
     void refreshSerialPort (void);
 
