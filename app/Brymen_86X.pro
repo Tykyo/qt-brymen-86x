@@ -11,6 +11,8 @@ DEFINES += _TARGET=\\\"$${TARGET}\\\"
 DEFINES += SERIAL_CONNECT_DELAY=2000 # Can be decrease to 50 if not using an arduino board
 DEFINES += BM_TCP_PORT=3333 # Use the same as defined in the firmware
 
+include($$PWD/gitversion.pri)
+
 SOURCES += \
     bm86xqwtplot.cpp \
     datastorage.cpp \

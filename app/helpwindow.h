@@ -28,7 +28,14 @@ public:
         QFile file(":/docs/help.md");
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QTextStream in(&file);
-            helpViewer->setMarkdown(in.readAll());
+            QString content = in.readAll();
+
+            const QString placeholder = "##GIT_VERSION##";
+            if (content.contains(placeholder)) {
+                content.replace(placeholder, QString::fromLocal8Bit(GIT_VERSION));
+            }
+
+            helpViewer->setMarkdown(content);
         }
 
         helpViewer->setOpenExternalLinks(true);
