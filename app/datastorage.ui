@@ -203,7 +203,7 @@
         <item row="2" column="2">
          <widget class="QDoubleSpinBox" name="dSB_aux_max">
           <property name="decimals">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="minimum">
            <double>-500.000000000000000</double>
@@ -226,7 +226,7 @@
         <item row="1" column="2">
          <widget class="QDoubleSpinBox" name="dSB_main_max">
           <property name="decimals">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="minimum">
            <double>-500.000000000000000</double>
@@ -242,7 +242,7 @@
         <item row="1" column="1">
          <widget class="QDoubleSpinBox" name="dSB_main_min">
           <property name="decimals">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="minimum">
            <double>-500.000000000000000</double>
@@ -255,7 +255,7 @@
         <item row="2" column="1">
          <widget class="QDoubleSpinBox" name="dSB_aux_min">
           <property name="decimals">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="minimum">
            <double>-500.000000000000000</double>

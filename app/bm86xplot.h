@@ -8,9 +8,13 @@
 #ifndef BM86XPLOT_H
 #define BM86XPLOT_H
 
+#include <QtCore/qobjectdefs.h>
+#include <QtCore/qtmetamacros.h>
+
 #define MIN_TO_MSEC 60000
 
 namespace BM86xPlot {
+Q_NAMESPACE
 
 enum plotType {
     PLOT_CURVE,
@@ -20,6 +24,7 @@ enum plotType {
 
     last_plot
 };
+Q_ENUM_NS(plotType)
 
 enum scale {
     ScaleFull  = 0 * MIN_TO_MSEC,
@@ -34,6 +39,7 @@ enum scale {
 
     last_scale
 };
+Q_ENUM_NS(scale)
 
 }
 

@@ -89,13 +89,15 @@ void BM86xQwtPlot::onAppendData(const BM86xDataType_s &data) {
     if (timeStamp < 0)
         timeStamp = 0;
 
-    if (data.value.m_overflow == false) {
+    if (data.value.m_overflow == false && data.value.m_mode != last_mode) {
         main_plot_data.append(QPointF(timeStamp, data.value.m_value));
     }
 
-    if (data.value.a_overflow == false) {
+    if (data.value.a_overflow == false && data.value.a_mode != last_mode) {
         aux_plot_data.append(QPointF(timeStamp, data.value.a_value));
     }
+
+    Q_EMIT dataAdded(timeStamp, data);
 
     // Check Value Aux
     if (data.value.a_mode == last_mode) {
@@ -191,6 +193,8 @@ void BM86xQwtPlot::onClearData()
     if (aux_curve) {
         aux_curve->setSamples(aux_plot_data);
     }
+
+    Q_EMIT dataCleared();
 
     this->replot();
 }
@@ -833,6 +837,7 @@ qint64 BM86xQwtPlot::findMinIndex(const QList<QPointF> &list, qint64 val)
 
 BM86xQwtPlot::AxisBoundary BM86xQwtPlot::getBoundaryX(const QVector<QPointF> &data) const
 {
+    if (data.isEmpty()) return {0, 0};
     AxisBoundary result = {data.first().x(),data.first().x()};
     for (auto& point : data) {
         result.min = ( qMin(result.min, point.x()) );
@@ -843,6 +848,7 @@ BM86xQwtPlot::AxisBoundary BM86xQwtPlot::getBoundaryX(const QVector<QPointF> &da
 
 BM86xQwtPlot::AxisBoundary BM86xQwtPlot::getBoundaryY(const QVector<QPointF> &data) const
 {
+    if (data.isEmpty()) return {0, 0};
     AxisBoundary result = {data.first().y(),data.first().y()};
     for (auto& point : data) {
         result.min = ( qMin(result.min, point.y()) );

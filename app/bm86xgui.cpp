@@ -64,160 +64,6 @@ BM86Xgui::BM86Xgui(QWidget *parent)
         ui->cBplot->setFont(customFont);
     }
 
-    /* {QString(text),QString(toolTip),QAction(*action),QKeySequence(shortcut)} */
-    mActionShortcutList.append({
-        "Quit",
-        "Close application",
-        ui->actionQuit,
-        QKeySequence::Quit
-    });
-    mActionShortcutList.append({
-        "Connect",
-        "Connect to device",
-        ui->actionConnect,
-        QKeySequence::Open
-    });
-    mActionShortcutList.append({
-        "Disconnect",
-        "Disconnect of the device",
-        ui->actionDisconnect,
-        Qt::ControlModifier | Qt::Key_D
-    });
-    mActionShortcutList.append({
-        "Color main",
-        "Set main data color",
-        ui->actionColor_main,
-        Qt::ControlModifier | Qt::Key_1
-    });
-
-    mActionShortcutList.append({
-        "Color aux",
-        "Set aux data color",
-        ui->actionColor_aux,
-        Qt::ControlModifier | Qt::Key_2
-    });
-
-    mActionShortcutList.append({
-        "Color X axis",
-        "Set X axis color",
-        ui->actionColor_X_Axis,
-        Qt::ControlModifier | Qt::Key_3
-    });
-
-    mActionShortcutList.append({
-        "Color mouse coordinates",
-        "Set mouse position color",
-        ui->actionColor_Mouse_Pos,
-        Qt::ControlModifier | Qt::Key_4
-    });
-
-    mActionShortcutList.append({
-        "Save",
-        "Save Plot",
-        ui->actionSave_Plot,
-        QKeySequence::Save
-    });
-
-    mActionShortcutList.append({
-        "Export",
-        "Export Data",
-        ui->actionExport,
-        Qt::ControlModifier | Qt::Key_E
-    });
-
-    mActionShortcutList.append({
-        "Antialiasing",
-        "Set the Antialiasing of plot",
-        ui->actionAntialiasing,
-        Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_A
-    });
-
-    mActionShortcutList.append({
-        "Hide",
-        "Hide plot and control",
-        ui->actionHide,
-        Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_H
-    });
-
-    mActionShortcutList.append({
-        "Review",
-        "Open Review Data",
-        ui->actionReview,
-        Qt::ControlModifier | Qt::Key_R
-    });
-
-    mActionShortcutList.append({
-        "Pause",
-        "Pause Plot",
-        ui->actionPause_Plot,
-        Qt::ControlModifier | Qt::Key_Z
-    });
-
-    mActionShortcutList.append({
-        "Clear",
-        "Clear Plot",
-        ui->actionClear_Plot,
-        QKeySequence::Delete
-    });
-
-    mActionShortcutList.append({
-        "Clear",
-        "Clear Data",
-        ui->actionClear,
-        QKeySequence::Backspace
-    });
-
-    mActionShortcutList.append({
-        "Record",
-        "Record Data",
-        ui->actionRecord,
-        Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_R
-    });
-
-    mActionShortcutList.append({
-        "Print",
-        "Print Plot",
-        ui->actionPrint_Plot,
-        QKeySequence::Print
-    });
-
-    mActionShortcutList.append({
-        "Print",
-        "Print Data",
-        ui->actionPrint_Data,
-        Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_P
-    });
-    mActionShortcutList.append({
-        "Test LCD",
-        "Test LCD",
-        ui->actionTest_LCD,
-        Qt::ControlModifier | Qt::Key_T
-    });
-    mActionShortcutList.append({
-        "Help",
-        "Show Help",
-        ui->actionHelp,
-        QKeySequence::HelpContents
-    });
-
-    for (auto &item : mActionShortcutList)
-        item.apply();
-
-    // Update button tooltip with associated QAction shortcut
-    QList<Shortcut::ButtonParam> buttonList;
-    buttonList.append({ui->pB_SavePlot, ui->actionSave_Plot});
-    buttonList.append({ui->pB_ShowData, ui->actionReview});
-    buttonList.append({ui->pB_Clear, ui->actionClear_Plot});
-    buttonList.append({ui->pB_Pause, ui->actionPause_Plot});
-    buttonList.append({ui->pB_Record, ui->actionRecord});
-
-    for (auto &item : buttonList) {
-        QString currentTooltip = item.button->toolTip();
-        QString currentActionShortcut = item.action->shortcut().toString(QKeySequence::NativeText);
-        QString finalToolTip = QString("%1\n%2").arg(currentTooltip, currentActionShortcut);
-        item.button->setToolTip(finalToolTip);
-    }
-
     // We use this workaround to pass QAction shortcut for the DataStorage QButton tooltips
     // It's not the best
     QList<QPointer<QAction>> actionList;
@@ -228,7 +74,6 @@ BM86Xgui::BM86Xgui(QWidget *parent)
     mStorageWindow = new DataStorage(actionList, this, mExcludeLastRow);
     QObject::connect(this, &BM86Xgui::colorChanged, mStorageWindow, &DataStorage::onSetColorFilter);
     QObject::connect(ui->actionExport, &QAction::triggered, mStorageWindow, &DataStorage::onExportData);
-    QObject::connect(ui->actionHelp, &QAction::triggered, this, &BM86Xgui::onShowHelp);
     QObject::connect(ui->actionClear, &QAction::triggered, mStorageWindow, &DataStorage::onClearData);
     QObject::connect(ui->actionPrint_Data, &QAction::triggered, mStorageWindow, &DataStorage::onPrintData);
     QObject::connect(mStorageWindow, &DataStorage::showStatusChanged, ui->actionReview, &QAction::setChecked);
@@ -248,6 +93,15 @@ BM86Xgui::BM86Xgui(QWidget *parent)
             ui->pB_Record->setIcon(setColoredSvg(":/image/Record_Data", QColor(229, 128, 255), ui->pB_Record->iconSize()));
         }
     });
+
+    mPlotData = new PlotData(this);
+    mPlotData->setFixedHeight(ui->lcdValue_main->height() + ui->lcdValue_aux->height()
+                              + ui->label_Unit_main->height() + ui->progressBar->height());
+    mPlotData->hide();
+    QObject::connect(mStorageWindow, &DataStorage::filterDataChanged, mPlotData, &PlotData::setFilter);
+    ui->lcdlLayout->addWidget(mPlotData,0);
+    QSpacerItem *lcdSpacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->lcdlLayout->addSpacerItem(lcdSpacer);
 
     QObject::connect(ui->cBMain, &QCheckBox::clicked, this, &BM86Xgui::onCbMainChecked);
     QObject::connect(ui->cBAux, &QCheckBox::clicked, this, &BM86Xgui::onCbAuxChecked);
@@ -277,100 +131,12 @@ BM86Xgui::BM86Xgui(QWidget *parent)
     mSerialPort.setParity(QSerialPort::NoParity);
     mSerialPort.setStopBits(QSerialPort::OneStop);
 
-    QObject::connect(ui->actionQuit, &QAction::triggered, qApp, &QCoreApplication::quit);
-    QObject::connect(ui->actionConnect, &QAction::triggered, this, &BM86Xgui::onConnectMultimeter);
-    QObject::connect(ui->actionDisconnect, &QAction::triggered, this, &BM86Xgui::onDisconnectMultimeter);
-    QObject::connect(ui->actionColor_main, &QAction::triggered, this, &BM86Xgui::onChooseColorMain);
-    QObject::connect(ui->actionColor_aux, &QAction::triggered, this, &BM86Xgui::onChooseColorAux);
-    QObject::connect(ui->actionColor_X_Axis, &QAction::triggered, this, &BM86Xgui::onChooseColorXAxis);
-    QObject::connect(ui->actionColor_Mouse_Pos, &QAction::triggered, this, &BM86Xgui::onChooseColorMousePos);
-    QObject::connect(ui->actionSave_Plot, &QAction::triggered, this, &BM86Xgui::onSavePlot);
-    QObject::connect(ui->actionPause_Plot, &QAction::triggered, ui->pB_Pause, &QPushButton::click);
-    QObject::connect(ui->actionClear_Plot, &QAction::triggered, ui->pB_Clear, &QPushButton::click);
-    QObject::connect(ui->actionRecord, &QAction::triggered, ui->pB_Record, &QPushButton::click);
-    QObject::connect(ui->actionPrint_Plot, &QAction::triggered, this, &BM86Xgui::print);
-    QObject::connect(ui->actionTest_LCD, &QAction::triggered, this, &BM86Xgui::onTestLCD);
-    QObject::connect(ui->actionAntialiasing, &QAction::triggered, this, [=, this] (bool value) {
-        ui->qtPlot->setAntialiasing(value);
-    });
-    QObject::connect(ui->actionHide, &QAction::toggled, this, [this](bool checked) {
-        ui->framePlot->setHidden(checked);
-
-        QMetaObject::invokeMethod(this, [this]() {
-            this->adjustSize();
-        }, Qt::QueuedConnection);
-    });
-    QObject::connect(ui->actionClear_Settings, &QAction::triggered, this, [=, this] () {
-        clearSettings = true;
-    });
-    QObject::connect(ui->actionCurve, &QAction::triggered, this, [=, this] () {
-        onChangePlotStyle(BM86xPlot::PLOT_CURVE);
-    });
-    QObject::connect(ui->actionLine, &QAction::triggered, this, [=, this] () {
-        onChangePlotStyle(BM86xPlot::PLOT_LINE);
-    });
-    QObject::connect(ui->actionScatter, &QAction::triggered, this, [=, this] () {
-        onChangePlotStyle(BM86xPlot::PLOT_SCATTER);
-    });
-    QObject::connect(ui->actionFullScale, &QAction::triggered, this, [=, this] () {
-        onChangePlotScale(BM86xPlot::ScaleFull);
-        currentScale = BM86xPlot::ScaleFull;
-    });
-    QObject::connect(ui->action5_Seconds, &QAction::triggered, this, [=, this] () {
-        onChangePlotScale(BM86xPlot::Seconds_5);
-        currentScale = BM86xPlot::Seconds_5;
-    });
-    QObject::connect(ui->action10_Seconds, &QAction::triggered, this, [=, this] () {
-        onChangePlotScale(BM86xPlot::Seconds_10);
-        currentScale = BM86xPlot::Seconds_10;
-    });
-    QObject::connect(ui->action30_Seconds, &QAction::triggered, this, [=, this] () {
-        onChangePlotScale(BM86xPlot::Seconds_30);
-        currentScale = BM86xPlot::Seconds_30;
-    });
-    QObject::connect(ui->action1_Minute, &QAction::triggered, this, [=, this] () {
-        onChangePlotScale(BM86xPlot::Minutes_1);
-        currentScale = BM86xPlot::Minutes_1;
-    });
-    QObject::connect(ui->action5_Minutes, &QAction::triggered, this, [=, this] () {
-        onChangePlotScale(BM86xPlot::Minutes_5);
-        currentScale = BM86xPlot::Minutes_5;
-    });
-    QObject::connect(ui->action10_Minutes, &QAction::triggered, this, [=, this] () {
-        onChangePlotScale(BM86xPlot::Minutes_10);
-        currentScale = BM86xPlot::Minutes_10;
-    });
-    QObject::connect(ui->action30_Minutes, &QAction::triggered, this, [=, this] () {
-        onChangePlotScale(BM86xPlot::Minutes_30);
-        currentScale = BM86xPlot::Minutes_30;
-    });
-    QObject::connect(ui->action1_hour, &QAction::triggered, this, [=, this] () {
-        onChangePlotScale(BM86xPlot::Minutes_60);
-        currentScale = BM86xPlot::Minutes_60;
-    });
-
-    // Set QAction ShortcutContext
-    ui->actionConnect->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionDisconnect->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionColor_main->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionColor_aux->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionSave_Plot->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionExport->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionAntialiasing->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionPause_Plot->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionClear_Plot->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionClear->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionRecord->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionReview->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionPrint_Plot->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionPrint_Data->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionColor_Mouse_Pos->setShortcutContext(Qt::ApplicationShortcut);
-    ui->actionTest_LCD->setShortcutContext(Qt::ApplicationShortcut);
-
     QObject::connect(ui->pB_SavePlot, &QPushButton::clicked, this, &BM86Xgui::onSavePlot);
     QObject::connect(ui->pB_Clear, &QPushButton::clicked, ui->qtPlot, &BM86xQwtPlot::onClearData);
     QObject::connect(ui->cBSpeed, &QComboBox::currentIndexChanged, this, &BM86Xgui::onChangeReadSpeed);
-    QObject::connect(ui->cBplot, &QComboBox::activated, this, &BM86Xgui::onChangePlotStyle);
+    QObject::connect(ui->cBplot, &QComboBox::activated, this, [=, this](int style) {
+        onChangePlotStyle(static_cast<BM86xPlot::plotType>(style));
+    });
     QObject::connect(this, &BM86Xgui::dataReceived, this, &BM86Xgui::onDataReceived);
     QObject::connect(this, &BM86Xgui::dataReceived, mStorageWindow, &DataStorage::onAppendData);
     QObject::connect(this, &BM86Xgui::dataReceived, ui->qtPlot, &BM86xQwtPlot::onAppendData);
@@ -392,7 +158,18 @@ BM86Xgui::BM86Xgui(QWidget *parent)
         else {
             ui->pB_Record->setIcon(setColoredSvg(":/image/Record_Data", QColor(229, 128, 255), ui->pB_Record->iconSize()));
         }
-    });    
+    });
+
+    QObject::connect(ui->qtPlot, &BM86xQwtPlot::dataAdded, mPlotData, &PlotData::append);
+    QObject::connect(ui->qtPlot, &BM86xQwtPlot::dataCleared, mPlotData, &PlotData::clear);
+    QObject::connect(ui->pB_PlotData, &QPushButton::clicked, this, [=, this]() {
+        if (mPlotData->isHidden()) {
+            mPlotData->show();
+        }
+        else {
+            mPlotData->hide();
+        }
+    });
 
     // Set default scale
     onChangePlotScale(currentScale);
@@ -413,25 +190,30 @@ BM86Xgui::BM86Xgui(QWidget *parent)
         "}"
     );
 
-    ui->pB_SavePlot->setText("");
-    ui->pB_ShowData->setText("");
-    ui->pB_Clear->setText("");
-    ui->pB_Pause->setText("");
-    ui->pB_Record->setText("");
-    ui->pB_SavePlot->setIcon(setColoredSvg(":/image/Save_plot", QColor(128, 255, 179), ui->pB_SavePlot->iconSize()));
-    ui->pB_ShowData->setIcon(setColoredSvg(":/image/Display_Data", QColor(85, 153, 255), ui->pB_ShowData->iconSize()));
-    ui->pB_Clear->setIcon(setColoredSvg(":/image/Clear_Plot", QColor(128, 255, 179), ui->pB_Clear->iconSize()));
-    ui->pB_Pause->setIcon(setColoredSvg(":/image/Pause", QColor(255, 127, 42), ui->pB_Pause->iconSize()));
-    ui->pB_Record->setIcon(setColoredSvg(":/image/Record_Data", QColor(229, 128, 255), ui->pB_Record->iconSize()));
-    ui->pB_SavePlot->setStyleSheet(buttonStyleSheet);
-    ui->pB_ShowData->setStyleSheet(buttonStyleSheet);
-    ui->pB_Clear->setStyleSheet(buttonStyleSheet);
-    ui->pB_Pause->setStyleSheet(buttonStyleSheet);
-    ui->pB_Record->setStyleSheet(buttonStyleSheet);
+    ui->pB_SavePlot->setText ("");
+    ui->pB_ShowData->setText ("");
+    ui->pB_PlotData->setText ("");
+    ui->pB_Clear->setText    ("");
+    ui->pB_Pause->setText    ("");
+    ui->pB_Record->setText   ("");
 
-    ui->cBplot->setItemIcon(0,setColoredSvg(":/image/Curve", QColor(0, 255, 102),ui->cBplot->iconSize()));
-    ui->cBplot->setItemIcon(1,setColoredSvg(":/image/Line", QColor(128, 128, 255),ui->cBplot->iconSize()));
-    ui->cBplot->setItemIcon(2,setColoredSvg(":/image/Scatter", QColor(255, 128, 229),ui->cBplot->iconSize()));
+    ui->pB_SavePlot->setIcon ( setColoredSvg( ":/image/Save_plot",    QColor(128, 255, 179), ui->pB_SavePlot->iconSize() ) );
+    ui->pB_ShowData->setIcon ( setColoredSvg( ":/image/Display_Data", QColor(85, 153, 255),  ui->pB_ShowData->iconSize() ) );
+    ui->pB_PlotData->setIcon ( setColoredSvg( ":/image/PlotData",     QColor(255, 255, 0),   ui->pB_PlotData->iconSize() ) );
+    ui->pB_Clear->setIcon    ( setColoredSvg( ":/image/Clear_Plot",   QColor(128, 255, 179), ui->pB_Clear->iconSize()    ) );
+    ui->pB_Pause->setIcon    ( setColoredSvg( ":/image/Pause",        QColor(255, 127, 42),  ui->pB_Pause->iconSize()    ) );
+    ui->pB_Record->setIcon   ( setColoredSvg( ":/image/Record_Data",  QColor(229, 128, 255), ui->pB_Record->iconSize()   ) );
+
+    ui->pB_SavePlot->setStyleSheet (buttonStyleSheet);
+    ui->pB_ShowData->setStyleSheet (buttonStyleSheet);
+    ui->pB_PlotData->setStyleSheet (buttonStyleSheet);
+    ui->pB_Clear->setStyleSheet    (buttonStyleSheet);
+    ui->pB_Pause->setStyleSheet    (buttonStyleSheet);
+    ui->pB_Record->setStyleSheet   (buttonStyleSheet);
+
+    ui->cBplot->setItemIcon( 0, setColoredSvg( ":/image/Curve",   QColor(0, 255, 102),   ui->cBplot->iconSize() ) );
+    ui->cBplot->setItemIcon( 1, setColoredSvg( ":/image/Line",    QColor(128, 128, 255), ui->cBplot->iconSize() ) );
+    ui->cBplot->setItemIcon( 2, setColoredSvg( ":/image/Scatter", QColor(255, 128, 229), ui->cBplot->iconSize() ) );
 
     // Set read speed
     static const QRegularExpression pattern(QStringLiteral("^Speed : "));
@@ -441,6 +223,7 @@ BM86Xgui::BM86Xgui(QWidget *parent)
         ui->cBSpeed->addItem(speedText);
     }
 
+    initMenu();
     initLCD();
 
     // Settings configuration
@@ -514,7 +297,7 @@ void BM86Xgui::readSettings()
 
     // Read plot settings
     onChangePlotScale
-        ( QString( readValue( mSettings, "Plot/Scale", QString::number(BM86xPlot::Minutes_1) ) ).toInt() );
+        ( static_cast<BM86xPlot::scale>( readValue( mSettings, "Plot/Scale", QString::number(BM86xPlot::Minutes_1) ).toInt() ) );
     ui->cBplot->setCurrentIndex
         ( QString( readValue( mSettings, "Plot/Type", QString::number(BM86xPlot::PLOT_LINE)  ) ).toInt() );
     ui->actionAntialiasing->setChecked
@@ -693,7 +476,7 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data)
         list.clear();
     }
 
-    //Set Range Main
+    // Set Range Main
     if (data.value.range == Auto) {
         ui->label_Range->setPixmap(mIconListSymMain[BM86x::sym_main_Range_Auto]);
     }
@@ -701,7 +484,7 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data)
         ui->label_Range->clear();
     }
 
-    //Set Peak Mode
+    // Set Peak Mode
     if (data.value.peakMode == All) {
         list.append(mIconListSymMain[BM86x::sym_main_Peak_Max]);
         list.append(mIconListSymMain[BM86x::sym_main_Peak_Min]);
@@ -723,7 +506,7 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data)
         ui->label_Peak->clear();
     }
 
-    //Set Rec Mode
+    // Set Rec Mode
     if (data.value.rec == Rec) {
         ui->label_Rec->setPixmap(mIconListSymMain[BM86x::sym_main_Rec]);
     }
@@ -880,7 +663,7 @@ void BM86Xgui::displayLCD(const BM86xDataType_s &data)
     if (BIT_CHECK(data.value.rawData[13],5)) {
         list.append(mIconListUnitMain[BM86x::unit_main_fara]);
     }
-    //S
+    // S
     if (BIT_CHECK(data.value.rawData[13],4)) {
         list.append(mIconListUnitMain[BM86x::unit_main_siemens]);
     }
@@ -1211,6 +994,259 @@ void BM86Xgui::initLCD() {
     Q_EMIT(colorChanged(DataStorage::filterColor_s({mColorMain, mColorAux})));
 }
 
+void BM86Xgui::initMenu()
+{
+    /* {QString(text),QString(toolTip),QAction(*action),QKeySequence(shortcut)} */
+    mActionShortcutList.append({
+        "Quit",
+        "Close application",
+        ui->actionQuit,
+        QKeySequence::Quit
+    });
+    mActionShortcutList.append({
+        "Connect",
+        "Connect to device",
+        ui->actionConnect,
+        QKeySequence::Open
+    });
+    mActionShortcutList.append({
+        "Disconnect",
+        "Disconnect of the device",
+        ui->actionDisconnect,
+        Qt::ControlModifier | Qt::Key_D
+    });
+    mActionShortcutList.append({
+        "Color main",
+        "Set main data color",
+        ui->actionColor_main,
+        Qt::ControlModifier | Qt::Key_1
+    });
+
+    mActionShortcutList.append({
+        "Color aux",
+        "Set aux data color",
+        ui->actionColor_aux,
+        Qt::ControlModifier | Qt::Key_2
+    });
+
+    mActionShortcutList.append({
+        "Color X axis",
+        "Set X axis color",
+        ui->actionColor_X_Axis,
+        Qt::ControlModifier | Qt::Key_3
+    });
+
+    mActionShortcutList.append({
+        "Color mouse coordinates",
+        "Set mouse position color",
+        ui->actionColor_Mouse_Pos,
+        Qt::ControlModifier | Qt::Key_4
+    });
+
+    mActionShortcutList.append({
+        "Save",
+        "Save Plot",
+        ui->actionSave_Plot,
+        QKeySequence::Save
+    });
+
+    mActionShortcutList.append({
+        "Show Data",
+        "Show Plot Data",
+        ui->actionShow_Data,
+        Qt::MetaModifier | Qt::Key_R
+    });
+
+    mActionShortcutList.append({
+        "Export",
+        "Export Data",
+        ui->actionExport,
+        Qt::ControlModifier | Qt::Key_E
+    });
+
+    mActionShortcutList.append({
+        "Antialiasing",
+        "Set the Antialiasing of plot",
+        ui->actionAntialiasing,
+        Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_A
+    });
+
+    mActionShortcutList.append({
+        "Hide",
+        "Hide plot and control",
+        ui->actionHide,
+        Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_H
+    });
+
+    mActionShortcutList.append({
+        "Review",
+        "Open Review Data",
+        ui->actionReview,
+        Qt::ControlModifier | Qt::Key_R
+    });
+
+    mActionShortcutList.append({
+        "Pause",
+        "Pause Plot",
+        ui->actionPause_Plot,
+        Qt::ControlModifier | Qt::Key_Z
+    });
+
+    mActionShortcutList.append({
+        "Clear",
+        "Clear Plot",
+        ui->actionClear_Plot,
+        QKeySequence::Delete
+    });
+
+    mActionShortcutList.append({
+        "Clear",
+        "Clear Data",
+        ui->actionClear,
+        QKeySequence::Backspace
+    });
+
+    mActionShortcutList.append({
+        "Record",
+        "Record Data",
+        ui->actionRecord,
+        Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_R
+    });
+
+    mActionShortcutList.append({
+        "Print",
+        "Print Plot",
+        ui->actionPrint_Plot,
+        QKeySequence::Print
+    });
+
+    mActionShortcutList.append({
+        "Print",
+        "Print Data",
+        ui->actionPrint_Data,
+        Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_P
+    });
+    mActionShortcutList.append({
+        "Test LCD",
+        "Test LCD",
+        ui->actionTest_LCD,
+        Qt::ControlModifier | Qt::Key_T
+    });
+    mActionShortcutList.append({
+        "Help",
+        "Show Help",
+        ui->actionHelp,
+        QKeySequence::HelpContents
+    });
+
+    for (auto &item : mActionShortcutList)
+        item.apply();
+
+    // Update button tooltip with associated QAction shortcut
+    QList<Shortcut::ButtonParam> buttonList;
+    buttonList.append({ui->pB_SavePlot, ui->actionSave_Plot});
+    buttonList.append({ui->pB_ShowData, ui->actionReview});
+    buttonList.append({ui->pB_Clear, ui->actionClear_Plot});
+    buttonList.append({ui->pB_Pause, ui->actionPause_Plot});
+    buttonList.append({ui->pB_Record, ui->actionRecord});
+    buttonList.append({ui->pB_PlotData, ui->actionShow_Data});
+
+    for (auto &item : buttonList) {
+        QString currentTooltip = item.button->toolTip();
+        QString currentActionShortcut = item.action->shortcut().toString(QKeySequence::NativeText);
+        QString finalToolTip = QString("%1\n%2").arg(currentTooltip, currentActionShortcut);
+        item.button->setToolTip(finalToolTip);
+    }
+
+    QObject::connect(ui->actionHelp, &QAction::triggered, this, &BM86Xgui::onShowHelp);
+    QObject::connect(ui->actionQuit, &QAction::triggered, qApp, &QCoreApplication::quit);
+    QObject::connect(ui->actionConnect, &QAction::triggered, this, &BM86Xgui::onConnectMultimeter);
+    QObject::connect(ui->actionDisconnect, &QAction::triggered, this, &BM86Xgui::onDisconnectMultimeter);
+    QObject::connect(ui->actionColor_main, &QAction::triggered, this, &BM86Xgui::onChooseColorMain);
+    QObject::connect(ui->actionColor_aux, &QAction::triggered, this, &BM86Xgui::onChooseColorAux);
+    QObject::connect(ui->actionColor_X_Axis, &QAction::triggered, this, &BM86Xgui::onChooseColorXAxis);
+    QObject::connect(ui->actionColor_Mouse_Pos, &QAction::triggered, this, &BM86Xgui::onChooseColorMousePos);
+    QObject::connect(ui->actionSave_Plot, &QAction::triggered, this, &BM86Xgui::onSavePlot);
+    QObject::connect(ui->actionPause_Plot, &QAction::triggered, ui->pB_Pause, &QPushButton::click);
+    QObject::connect(ui->actionClear_Plot, &QAction::triggered, ui->pB_Clear, &QPushButton::click);
+    QObject::connect(ui->actionRecord, &QAction::triggered, ui->pB_Record, &QPushButton::click);
+    QObject::connect(ui->actionPrint_Plot, &QAction::triggered, this, &BM86Xgui::print);
+    QObject::connect(ui->actionTest_LCD, &QAction::triggered, this, &BM86Xgui::onTestLCD);
+    QObject::connect(ui->actionAntialiasing, &QAction::triggered, this, [=, this] (bool value) {
+        ui->qtPlot->setAntialiasing(value);
+    });
+    QObject::connect(ui->actionHide, &QAction::toggled, this, [this](bool checked) {
+        ui->framePlot->setHidden(checked);
+
+        QMetaObject::invokeMethod(this, [this]() {
+            this->adjustSize();
+        }, Qt::QueuedConnection);
+    });
+    QObject::connect(ui->actionClear_Settings, &QAction::triggered, this, [=, this] () {
+        clearSettings = true;
+    });
+    QObject::connect(ui->actionShow_Data, &QAction::triggered, [=, this]() {
+        if (mPlotData->isHidden()) {
+            // mPlotData->move(this->width() - mPlotData->width(), 0);
+            mPlotData->show();
+        }
+        else {
+            mPlotData->hide();
+        }
+    });
+
+    // plot style menu
+    mMapPlotSTyle.insert(BM86xPlot::PLOT_CURVE,   ui->actionCurve);
+    mMapPlotSTyle.insert(BM86xPlot::PLOT_LINE,    ui->actionLine);
+    mMapPlotSTyle.insert(BM86xPlot::PLOT_SCATTER, ui->actionScatter);
+
+    for (auto i = mMapPlotSTyle.cbegin(); i != mMapPlotSTyle.cend(); ++i)
+    {
+        const auto style = i.key();
+        QObject::connect(i.value(), &QAction::triggered, this, [this, style] () {
+            onChangePlotStyle(style);
+        });
+    }
+
+    // plot scale menu
+    mMapPlotScale.insert(BM86xPlot::ScaleFull,  ui->actionFull);
+    mMapPlotScale.insert(BM86xPlot::Seconds_5,  ui->action5_Seconds);
+    mMapPlotScale.insert(BM86xPlot::Seconds_10, ui->action10_Seconds);
+    mMapPlotScale.insert(BM86xPlot::Seconds_30, ui->action30_Seconds);
+    mMapPlotScale.insert(BM86xPlot::Minutes_1,  ui->action1_Minute);
+    mMapPlotScale.insert(BM86xPlot::Minutes_5,  ui->action5_Minutes);
+    mMapPlotScale.insert(BM86xPlot::Minutes_10, ui->action10_Minutes);
+    mMapPlotScale.insert(BM86xPlot::Minutes_30, ui->action30_Minutes);
+    mMapPlotScale.insert(BM86xPlot::Minutes_60, ui->action1_Hour);
+
+    for (auto i = mMapPlotScale.cbegin(); i != mMapPlotScale.cend(); ++i)
+    {
+        const auto scale = i.key();
+        QObject::connect(i.value(), &QAction::triggered, this, [this, scale] () {
+            onChangePlotScale(scale);
+        });
+    }
+
+    // Set QAction ShortcutContext
+    ui->actionConnect->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionDisconnect->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionColor_main->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionColor_aux->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionSave_Plot->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionExport->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionAntialiasing->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionPause_Plot->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionClear_Plot->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionShow_Data->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionClear->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionRecord->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionReview->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionPrint_Plot->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionPrint_Data->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionColor_Mouse_Pos->setShortcutContext(Qt::ApplicationShortcut);
+    ui->actionTest_LCD->setShortcutContext(Qt::ApplicationShortcut);
+}
+
 void BM86Xgui::print()
 {
     QPrinter printer(QPrinter::HighResolution);
@@ -1368,6 +1404,7 @@ void BM86Xgui::setColorAux(const QColor &color)
 {
     if (color.isValid()) {
         mColorAux = color;
+        mPlotData->onSetColorFilter({mColorMain, mColorAux});
 
         int r, g, b;
         mColorAux.getRgb(&r, &g, &b);
@@ -1427,6 +1464,7 @@ void BM86Xgui::setColorMain(const QColor &color)
 {
     if (color.isValid()) {
         mColorMain = color;
+        mPlotData->onSetColorFilter({mColorMain, mColorAux});
 
         int r, g, b;
         mColorMain.getRgb(&r, &g, &b);
@@ -1589,131 +1627,21 @@ void BM86Xgui::onCbMainChecked(bool val)
     ui->qtPlot->onSetMainVisible(val);
 }
 
-void BM86Xgui::onChangePlotScale(const int &scale)
+void BM86Xgui::onChangePlotScale(const BM86xPlot::scale &scale)
 {
     ui->qtPlot->setPlotScale(scale);
 
-    if (scale == BM86xPlot::ScaleFull) {
-        ui->actionFullScale->setChecked(true);
-        ui->action5_Seconds->setChecked(false);
-        ui->action10_Seconds->setChecked(false);
-        ui->action30_Seconds->setChecked(false);
-        ui->action1_Minute->setChecked(false);
-        ui->action5_Minutes->setChecked(false);
-        ui->action10_Minutes->setChecked(false);
-        ui->action30_Minutes->setChecked(false);
-        ui->action1_hour->setChecked(false);
-    }
-    else if (scale == BM86xPlot::Seconds_5) {
-        ui->actionFullScale->setChecked(false);
-        ui->action5_Seconds->setChecked(true);
-        ui->action10_Seconds->setChecked(false);
-        ui->action30_Seconds->setChecked(false);
-        ui->action1_Minute->setChecked(false);
-        ui->action5_Minutes->setChecked(false);
-        ui->action10_Minutes->setChecked(false);
-        ui->action30_Minutes->setChecked(false);
-        ui->action1_hour->setChecked(false);
-    }
-    else if (scale == BM86xPlot::Seconds_10) {
-        ui->actionFullScale->setChecked(false);
-        ui->action5_Seconds->setChecked(false);
-        ui->action10_Seconds->setChecked(true);
-        ui->action30_Seconds->setChecked(false);
-        ui->action1_Minute->setChecked(false);
-        ui->action5_Minutes->setChecked(false);
-        ui->action10_Minutes->setChecked(false);
-        ui->action30_Minutes->setChecked(false);
-        ui->action1_hour->setChecked(false);
-    }
-    else if (scale == BM86xPlot::Seconds_30) {
-        ui->actionFullScale->setChecked(false);
-        ui->action5_Seconds->setChecked(false);
-        ui->action10_Seconds->setChecked(false);
-        ui->action30_Seconds->setChecked(true);
-        ui->action1_Minute->setChecked(false);
-        ui->action5_Minutes->setChecked(false);
-        ui->action10_Minutes->setChecked(false);
-        ui->action30_Minutes->setChecked(false);
-        ui->action1_hour->setChecked(false);
-    }
-    else if (scale == BM86xPlot::Minutes_1) {
-        ui->actionFullScale->setChecked(false);
-        ui->action5_Seconds->setChecked(false);
-        ui->action10_Seconds->setChecked(false);
-        ui->action30_Seconds->setChecked(false);
-        ui->action1_Minute->setChecked(true);
-        ui->action5_Minutes->setChecked(false);
-        ui->action10_Minutes->setChecked(false);
-        ui->action30_Minutes->setChecked(false);
-        ui->action1_hour->setChecked(false);
-    }
-    else if (scale == BM86xPlot::Minutes_5) {
-        ui->actionFullScale->setChecked(false);
-        ui->action5_Seconds->setChecked(false);
-        ui->action10_Seconds->setChecked(false);
-        ui->action30_Seconds->setChecked(false);
-        ui->action1_Minute->setChecked(false);
-        ui->action5_Minutes->setChecked(true);
-        ui->action10_Minutes->setChecked(false);
-        ui->action30_Minutes->setChecked(false);
-        ui->action1_hour->setChecked(false);
-    }
-    else if (scale == BM86xPlot::Minutes_10) {
-        ui->actionFullScale->setChecked(false);
-        ui->action5_Seconds->setChecked(false);
-        ui->action10_Seconds->setChecked(false);
-        ui->action30_Seconds->setChecked(false);
-        ui->action1_Minute->setChecked(false);
-        ui->action5_Minutes->setChecked(false);
-        ui->action10_Minutes->setChecked(true);
-        ui->action30_Minutes->setChecked(false);
-        ui->action1_hour->setChecked(false);
-    }
-    else if (scale == BM86xPlot::Minutes_30) {
-        ui->actionFullScale->setChecked(false);
-        ui->action5_Seconds->setChecked(false);
-        ui->action10_Seconds->setChecked(false);
-        ui->action30_Seconds->setChecked(false);
-        ui->action1_Minute->setChecked(false);
-        ui->action5_Minutes->setChecked(false);
-        ui->action10_Minutes->setChecked(false);
-        ui->action30_Minutes->setChecked(true);
-        ui->action1_hour->setChecked(false);
-    }
-    else if (scale == BM86xPlot::Minutes_60) {
-        ui->actionFullScale->setChecked(false);
-        ui->action5_Seconds->setChecked(false);
-        ui->action10_Seconds->setChecked(false);
-        ui->action30_Seconds->setChecked(false);
-        ui->action1_Minute->setChecked(false);
-        ui->action5_Minutes->setChecked(false);
-        ui->action10_Minutes->setChecked(false);
-        ui->action30_Minutes->setChecked(false);
-        ui->action1_hour->setChecked(true);
-    }
+    for (auto i = mMapPlotScale.cbegin(); i != mMapPlotScale.cend(); ++i)
+        i.value()->setChecked(i.key() == scale);
 }
 
-void BM86Xgui::onChangePlotStyle(const int &type)
+void BM86Xgui::onChangePlotStyle(const BM86xPlot::plotType &type)
 {
     ui->qtPlot->setPlotType(type);
     ui->cBplot->setCurrentIndex(type);
 
-    if (type == BM86xPlot::PLOT_CURVE) {
-        ui->actionCurve->setChecked(true);
-        ui->actionLine->setChecked(false);
-        ui->actionScatter->setChecked(false);
-    }
-    else if (type == BM86xPlot::PLOT_LINE) {
-        ui->actionCurve->setChecked(false);
-        ui->actionLine->setChecked(true);
-        ui->actionScatter->setChecked(false);
-    }
-    else {
-        ui->actionCurve->setChecked(false);
-        ui->actionLine->setChecked(false);
-        ui->actionScatter->setChecked(true);
-    }
+    for (auto i = mMapPlotSTyle.cbegin(); i != mMapPlotSTyle.cend(); ++i)
+        i.value()->setChecked(i.key() == type);
 }
 
 void BM86Xgui::onChangeReadSpeed(const int &index)
@@ -1744,28 +1672,28 @@ void BM86Xgui::onChangeReadSpeed(const int &index)
 void BM86Xgui::onChooseColorAux()
 {
     QColor color = QColorDialog::getColor(mColorAux, this, "Pick AUX color",
-                                          QColorDialog::ShowAlphaChannel);
+                                          QColorDialog::ShowAlphaChannel | QColorDialog::DontUseNativeDialog);
     setColorAux(color);
 }
 
 void BM86Xgui::onChooseColorMain()
 {
     QColor color = QColorDialog::getColor(mColorMain, this, "Pick MAIN color",
-                                          QColorDialog::ShowAlphaChannel);
+                                          QColorDialog::ShowAlphaChannel | QColorDialog::DontUseNativeDialog);
     setColorMain(color);
 }
 
 void BM86Xgui::onChooseColorMousePos()
 {
     QColor color = QColorDialog::getColor(mColorMousePos, this, "Pick Mouse color",
-                                          QColorDialog::ShowAlphaChannel);
+                                          QColorDialog::ShowAlphaChannel | QColorDialog::DontUseNativeDialog);
     setColorMousePos(color);
 }
 
 void BM86Xgui::onChooseColorXAxis()
 {
     QColor color = QColorDialog::getColor(mColorXAxis, this, "Pick X Axis color",
-                                          QColorDialog::ShowAlphaChannel);
+                                          QColorDialog::ShowAlphaChannel | QColorDialog::DontUseNativeDialog);
     setColorXAxis(color);
 }
 

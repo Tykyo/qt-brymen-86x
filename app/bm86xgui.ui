@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>490</width>
-    <height>577</height>
+    <height>619</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -51,7 +51,7 @@
      <number>0</number>
     </property>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,1">
+     <layout class="QHBoxLayout" name="lcdlLayout" stretch="0">
       <property name="spacing">
        <number>0</number>
       </property>
@@ -499,19 +499,6 @@ QLabel
         </item>
        </layout>
       </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Orientation::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
      </layout>
     </item>
     <item>
@@ -559,6 +546,43 @@ QLabel
              <property name="spacing">
               <number>0</number>
              </property>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="pB_ShowData">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Show Data</string>
+               </property>
+               <property name="toolTipDuration">
+                <number>5000</number>
+               </property>
+               <property name="text">
+                <string>Data</string>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>48</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </widget>
+             </item>
              <item row="0" column="0">
               <widget class="QPushButton" name="pB_SavePlot">
                <property name="minimumSize">
@@ -587,6 +611,98 @@ QLabel
                </property>
                <property name="text">
                 <string>Plot</string>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>48</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="cBplot">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Consolas</family>
+                 <pointsize>15</pointsize>
+                </font>
+               </property>
+               <property name="toolTip">
+                <string>Select graph type</string>
+               </property>
+               <property name="toolTipDuration">
+                <number>5000</number>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="currentIndex">
+                <number>1</number>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>24</width>
+                 <height>20</height>
+                </size>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Curve</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Line</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Scatter</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="pB_Clear">
+               <property name="minimumSize">
+                <size>
+                 <width>60</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>60</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="baseSize">
+                <size>
+                 <width>50</width>
+                 <height>50</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Clear Plot</string>
+               </property>
+               <property name="toolTipDuration">
+                <number>5000</number>
+               </property>
+               <property name="text">
+                <string>Clear</string>
                </property>
                <property name="iconSize">
                 <size>
@@ -670,8 +786,8 @@ QLabel
                </property>
               </widget>
              </item>
-             <item row="1" column="0">
-              <widget class="QPushButton" name="pB_Clear">
+             <item row="4" column="0">
+              <widget class="QPushButton" name="pB_PlotData">
                <property name="minimumSize">
                 <size>
                  <width>60</width>
@@ -691,105 +807,13 @@ QLabel
                 </size>
                </property>
                <property name="toolTip">
-                <string>Clear Plot</string>
+                <string>Show Plot Data</string>
                </property>
                <property name="toolTipDuration">
                 <number>5000</number>
                </property>
                <property name="text">
-                <string>Clear</string>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>48</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QComboBox" name="cBplot">
-               <property name="minimumSize">
-                <size>
-                 <width>60</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>60</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="font">
-                <font>
-                 <family>Consolas</family>
-                 <pointsize>15</pointsize>
-                </font>
-               </property>
-               <property name="toolTip">
-                <string>Select graph type</string>
-               </property>
-               <property name="toolTipDuration">
-                <number>5000</number>
-               </property>
-               <property name="styleSheet">
-                <string notr="true"/>
-               </property>
-               <property name="currentIndex">
-                <number>1</number>
-               </property>
-               <property name="iconSize">
-                <size>
-                 <width>24</width>
-                 <height>20</height>
-                </size>
-               </property>
-               <item>
-                <property name="text">
-                 <string>Curve</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Line</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Scatter</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPushButton" name="pB_ShowData">
-               <property name="minimumSize">
-                <size>
-                 <width>60</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>60</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="baseSize">
-                <size>
-                 <width>50</width>
-                 <height>50</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Show Data</string>
-               </property>
-               <property name="toolTipDuration">
-                <number>5000</number>
-               </property>
-               <property name="text">
-                <string>Data</string>
+                <string>PlotD</string>
                </property>
                <property name="iconSize">
                 <size>
@@ -920,6 +944,7 @@ QLabel
     <addaction name="actionPrint_Plot"/>
     <addaction name="actionB_W_Save_Print"/>
     <addaction name="actionHide"/>
+    <addaction name="actionShow_Data"/>
    </widget>
    <widget class="QMenu" name="menuDevice">
     <property name="title">
@@ -1267,6 +1292,11 @@ QLabel
    </property>
    <property name="text">
     <string>Hide</string>
+   </property>
+  </action>
+  <action name="actionShow_Data">
+   <property name="text">
+    <string>Show Data</string>
    </property>
   </action>
  </widget>

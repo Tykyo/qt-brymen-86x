@@ -219,7 +219,9 @@ private:
     // void requestPlay() { if (m_pauseStatus) Q_EMIT(pausePlot()); }
 
 Q_SIGNALS:
-    void pausePlot ();
+    void pausePlot   ();
+    void dataAdded   (const qint64 &time, const BM86xDataType_s &data);
+    void dataCleared ();
 
 protected:
     bool eventFilter (QObject *obj, QEvent *event) override;

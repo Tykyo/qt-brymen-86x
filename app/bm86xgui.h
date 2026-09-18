@@ -19,6 +19,7 @@
 #include "bm86xplot.h"
 #include "datastorage.h"
 #include "shortcutaction.h"
+#include "plotdata.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -71,13 +72,17 @@ private:
     QColor mColorAux      = QColor(0, 255, 255);
     QColor mColorXAxis    = QColor(125, 125, 125);
     QColor mColorMousePos = QColor(125, 125, 125);
-    int    currentScale   = BM86xPlot::Minutes_1;
+    BM86xPlot::scale currentScale = BM86xPlot::Minutes_1;
 
     QTimer mTimoutTimer;
     QTimer mSerialConnectTimer;
     QTimer mTestLCDTimer;
 
+    QMap<BM86xPlot::scale, QPointer<QAction>>    mMapPlotScale;
+    QMap<BM86xPlot::plotType, QPointer<QAction>> mMapPlotSTyle;
+
     QPointer<DataStorage>    mStorageWindow;
+    QPointer<PlotData>       mPlotData;
     QList<Shortcut::Action>  mActionShortcutList;
     QList<QPointer<QAction>> mListActionAquisitionRate;
     QStringList              mModeStringList;
@@ -99,6 +104,7 @@ private:
     void    displayLCD           (const BM86xDataType_s& data);
     QString getAppConfigPath     ();
     void    initLCD              ();
+    void    initMenu             ();
     void    print                ();
     void    renderPlot           (QPaintDevice *device, const QRectF &documentRect);
     void    renderPlot           (QPaintDevice *device);
@@ -116,8 +122,8 @@ private:
 private Q_SLOTS:
     void onCbAuxChecked            (bool val);
     void onCbMainChecked           (bool val);
-    void onChangePlotScale         (const int& scale);
-    void onChangePlotStyle         (const int& type);
+    void onChangePlotScale         (const BM86xPlot::scale& scale);
+    void onChangePlotStyle         (const BM86xPlot::plotType& type);
     void onChangeReadSpeed         (const int& index);
     void onChooseColorAux          ();
     void onChooseColorMain         ();

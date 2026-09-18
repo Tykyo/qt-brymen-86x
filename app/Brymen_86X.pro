@@ -16,7 +16,8 @@ SOURCES += \
     datastorage.cpp \
     dialogconnect.cpp \
     main.cpp \
-    bm86xgui.cpp
+    bm86xgui.cpp \
+    plotdata.cpp
 
 HEADERS += \
     barscale.h \
@@ -27,12 +28,14 @@ HEADERS += \
     dialogconnect.h \
     dualaxiszoomer.h \
     helpwindow.h \
+    plotdata.h \
     shortcutaction.h
 
 FORMS += \
     bm86xgui.ui \
     datastorage.ui \
-    dialogconnect.ui
+    dialogconnect.ui \
+    plotdata.ui
 
 RESOURCES += \
     bm86xgui.qrc

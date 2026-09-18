@@ -19,6 +19,7 @@
         <file alias="Scroll_OFF">resources/Scroll_OFF.svg</file>
         <file alias="Scroll_ON">resources/Scroll_ON.svg</file>
         <file alias="Display_Data">resources/Display_Data.svg</file>
+        <file alias="PlotData">resources/Display_PlotData.svg</file>
     </qresource>
     <qresource prefix="/main_unit">
         <file alias="unit_main_ALL">resources/unit/unit_main_ALL.svg</file>
